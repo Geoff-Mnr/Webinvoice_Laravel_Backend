@@ -11,17 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('document_product', function (Blueprint $table) {
+        Schema::create('documenttypes', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('document_id')->constrained();
-            $table->foreignId('product_id')->constrained();
-            $table->foreignId('documenttype_id')->constrained();
-            $table->integer('quantity')->default(0);
-            $table->integer('discount')->default(0);
-            $table->integer('price_htva')->default(0);
-            $table->integer('price_vvac')->default(0);
-            $table->integer('price_total')->default(0);
-            $table->longText('comment')->nullable();
+            $table->string('reference')->unique();
+            $table->string('name')->unique();
             $table->longText('description')->nullable();
             $table->string('status', 1)->default('N');
             $table->boolean('is_active')->default(true);
@@ -37,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('document_product');
+        Schema::dropIfExists('documenttypes');
     }
 };
