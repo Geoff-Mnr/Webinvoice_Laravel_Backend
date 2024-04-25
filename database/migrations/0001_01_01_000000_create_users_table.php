@@ -26,14 +26,13 @@ return new class extends Migration
             $table->string('state');
             $table->string('zip_code');
             $table->string('country');
-            $table->string('profile_picture')->nullable();
+            $table->string('profile_picture')->nullable(); 
             $table->string('status', 1)->default('N');
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('created_by')->nullable(false)->default(1);
             $table->unsignedInteger('updated_by')->nullable(true);
             $table->timestamps();
             $table->rememberToken();
-            $table->timestamps();
             $table->softDeletes();
         });
 
