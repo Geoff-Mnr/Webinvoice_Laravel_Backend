@@ -11,14 +11,13 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('tickets', function (Blueprint $table) {
+        Schema::create('ticket_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained();
-            $table->string('title');
-            $table->string('comment')->nullable();
-            $table->longText('description')->nullable();
+            $table->foreignId('ticket_id')->constrained('tickets');
+            $table->foreignId('user_id')->constrained('users');
+            $table->longText('message')->nullable(false);
+            $table->longText('response')->nullable(false);
             $table->string('status', 1)->default('N');
-            $table->boolean('is_active')->default(true);
             $table->unsignedInteger('created_by')->nullable(false)->default(1);
             $table->unsignedInteger('updated_by')->nullable(true);
             $table->timestamps();
@@ -31,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('tickets');
+        Schema::dropIfExists('ticket_user');
     }
 };
