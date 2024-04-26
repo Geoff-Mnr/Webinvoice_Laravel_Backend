@@ -18,7 +18,6 @@ class Role extends Model
         'updated_by',
     ];
 
-
     public function users()
     {
         return $this->hasMany(User::class, 'role_id');
