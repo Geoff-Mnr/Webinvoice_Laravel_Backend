@@ -5,13 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Documenttype extends Model
+class Tickets extends Model
 {
     use HasFactory;
 
     protected $fillable = [
-        'reference',
-        'name',
+        'user_id',
+        'title',
+        'comment',
         'description',
         'status',
         'is_active',
@@ -19,8 +20,9 @@ class Documenttype extends Model
         'updated_by',
     ];
 
-    public function documents()
+    public function user()
     {
-        return $this->hasMany(Document::class, 'documenttype_id');
+        return $this->belongsToMany(User::class,'ticket_user' ,'user_id', 'ticket_id')
+        ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
     }
 }
