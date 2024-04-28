@@ -22,7 +22,7 @@ class Tickets extends Model
 
     public function user()
     {
-        return $this->belongsToMany(User::class,'ticket_user' ,'user_id', 'ticket_id')
+        return $this->belongsToMany(User::class,'ticket_user', 'ticket_id', 'user_id')
         ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
     }
 }
