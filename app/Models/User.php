@@ -65,7 +65,7 @@ class User extends Authenticatable
 
     public function tickets()
     {
-        return $this->BelongsToMany(Tickets::class, 'user_id')
-        withPivot('title', 'comment', 'description', 'status', 'is_active', 'created_by', 'updated_by');
+        return $this->BelongsToMany(Tickets::class, 'user_id', 'ticket_id', 'ticket_user')
+        ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
     }
 }
