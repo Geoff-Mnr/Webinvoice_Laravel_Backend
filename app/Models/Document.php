@@ -10,6 +10,8 @@ class Document extends Model
     use HasFactory;
 
     protected $fillable = [
+        'customer_id',
+        'documenttype_id',
         'reference_number',
         'document_date',
         'due_date',
