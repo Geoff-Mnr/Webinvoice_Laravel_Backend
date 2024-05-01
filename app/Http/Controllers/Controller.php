@@ -10,5 +10,8 @@ use Illuminate\Routing\Controller as BaseController;
 
 abstract class Controller
 {
+    /**
+     * The "booting" method of the controller.
+     */
     use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
 }
