@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\Document;
+use App\Models\Documenttype;
+use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
 
-class DocumentsController extends Controller
+class DocumentsController extends BaseController
 {
     /**
      * Display a listing of the resource.
