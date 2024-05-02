@@ -23,7 +23,6 @@ return new class extends Migration
             $table->string('phone_number');
             $table->string('address');
             $table->string('city');
-            $table->string('state');
             $table->string('zip_code');
             $table->string('country');
             $table->string('profile_picture')->nullable(); 

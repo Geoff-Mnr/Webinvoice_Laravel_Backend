@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Http\Controllers\Controller;
+
 use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
