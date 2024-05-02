@@ -70,7 +70,7 @@ class DocumentsController extends BaseController
     public function show(Document $document)
     {
         try {
-            return $this->handleResponse(200, 'Document fetched successfully', $document, 200);
+            return $this->handleResponse(200, 'Document retrieved successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
