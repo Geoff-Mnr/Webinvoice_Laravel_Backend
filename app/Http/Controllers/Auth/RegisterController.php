@@ -7,36 +7,32 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\BaseController;
 
+
 class RegisterController extends BaseController
 {
     public function register(Request $request)
     {
-        $request->validate([
-            'username' => 'required|string',
-            'first_name' => 'required|string',
-            'last_name' => 'required|string',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
-            'confirm_password' => 'required|same:password',
-            'phone_number' => 'required',
-            'address' => 'required',
-            'city' => 'required',
-            'state' => 'required',
-            'zip_code' => 'required',
-            'country' => 'required',
-            'profile_picture' => 'nullable',
-        ]);
+        try {
+            $request->validate([
+                'username' => 'required|string',
+                'email' => 'required|email|unique:users',
+                'password' => 'required|min:6',
+                'confirm_password' => 'required|same:password',
+            ]);
+            
 
-        if ($request->fails()) {
-            return $this->handleErrorResponse($request->errors(),400);
+            $input = $request->all();
+
+            $input['role_id'] = 2;
+            $input['password'] = bcrypt($input['password']);
+            $user = User::create($input);
+            
+            $success['token'] = $user->createToken('MyApp')->plainTextToken;
+            $success['user'] = $user;
+    
+            return $this->handleResponseNoPagination('User registered successfully', $success, 201);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
         }
-
-        $input = $request->all();
-        $input['password'] = bcrypt($input['password']);
-        $input['role_id'] = 2;
-        $user = User::create($input);
-        $token = $user->createToken('authToken')->plainTextToken;
-        return $this->handleResponse(['token' => $token], 'User registered successfully');
-
     }    
 }

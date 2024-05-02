@@ -6,6 +6,7 @@ use App\Http\Controllers\BaseController;
 use App\Models\Role;
 use Illuminate\Http\Request;
 
+
 class RolesController extends BaseController
 {
     /**
@@ -15,7 +16,7 @@ class RolesController extends BaseController
     {
         try {
             $roles = Role::all();
-            return $this->handleResponse(200, 'Roles fetched successfully', $roles);
+            return $this->handleResponseNoPagination('Roles fetched successfully', $roles, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

@@ -5,15 +5,15 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
-use Casts\CreatedByCast;
-use Casts\UpdatedByCast;
+use App\Casts\CreatedByCast;
+use App\Casts\UpdatedByCast;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Role extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
-        'role_id',
         'name',
         'description',
         'status',

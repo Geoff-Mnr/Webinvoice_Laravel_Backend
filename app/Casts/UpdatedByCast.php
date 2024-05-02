@@ -6,7 +6,7 @@ use Illuminate\Contracts\Database\Eloquent\CastsAttributes;
 use App\Models\User;
 
 
-class CreatedByCast implements CastsAttributes
+class UpdatedByCast implements CastsAttributes
 {
     /**
      * Cast the value to a type.
