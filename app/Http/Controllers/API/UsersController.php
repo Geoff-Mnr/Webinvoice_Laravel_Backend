@@ -151,6 +151,31 @@ class UsersController extends BaseController
         }
     }
 
+    //my champ is profile_picture
+
+    public function uploadProfilePicture(Request $request, string $id)
+    {
+        try {
+            $user = User::find($id);
+            if ($user) {
+                $request->validate([
+                    'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+                ]);
+
+                $image = $request->file('profile_picture');
+                $imageName = time() . '.' . $image->extension();
+                $image->move(public_path('images'), $imageName);
+                $user->profile_picture = $imageName;
+                $user->save();
+                return $this->handleResponse(200, 'Profile picture uploaded successfully', $user);
+            } else {
+                return $this->handleError('User not found.', 400);
+            }
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
+    }
+
 
 
 
