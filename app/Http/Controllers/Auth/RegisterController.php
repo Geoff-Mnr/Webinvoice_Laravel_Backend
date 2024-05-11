@@ -14,7 +14,7 @@ class RegisterController extends BaseController
     {
         try {
             $request->validate([
-                'username' => 'required|string',
+                'username' => 'required|string|unique:users',
                 'email' => 'required|email|unique:users',
                 'password' => 'required|min:6',
                 'confirm_password' => 'required|same:password',
