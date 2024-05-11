@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\BaseController;
+use Carbon\Carbon;
 
 class LoginController extends BaseController
 {
@@ -20,10 +21,21 @@ class LoginController extends BaseController
 
         if (auth()->attempt($credentials)) {
             $request->user()->tokens()->delete();
-            $token = $request->user()->createToken('invoiceAuth')->plainTextToken;
-            return $this->handleResponseNoPagination(['token' => $token], 'Login successful', 200);
+            $token = $request->user()->createToken('invoiceAuth', [], Carbon::now()->addHours(24))->plainTextToken;
+            $user = $request->user();
+            return $this->handleResponseNoPagination(['token' => $token, 
+            'user' => [
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->role->name ?? 'User',
+            ],
+            'access_token' => $token,
+            'token_type' => 'Bearer',
+            'expires_at' => Carbon::now()->addHours(24)->toDateTimeString(),
+        ], 
+            'Login successful', 200);
         } else {
-            return $this->handleErrorResponseNoPagination('Invalid credentials', 401);
+            return $this->handleError('Invalid credentials', 401);
         }    
     }
 }
