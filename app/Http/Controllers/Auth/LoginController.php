@@ -21,9 +21,9 @@ class LoginController extends BaseController
         if (auth()->attempt($credentials)) {
             $request->user()->tokens()->delete();
             $token = $request->user()->createToken('invoiceAuth')->plainTextToken;
-            return $this->handleResponse(['token' => $token], 'Login successful', 200);
+            return $this->handleResponseNoPagination(['token' => $token], 'Login successful', 200);
         } else {
-            return $this->handleErrorResponse('Invalid credentials', 401);
+            return $this->handleErrorResponseNoPagination('Invalid credentials', 401);
         }    
     }
 }
