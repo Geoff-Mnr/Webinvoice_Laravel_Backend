@@ -7,32 +7,27 @@ use App\Models\Customer;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
-use App\Http\Controllers\API\BaseController;
+use App\Http\Controllers\BaseController;
 
 class CustomersController extends BaseController
 {
-    /**
-     * Display a listing of the resource.
-     */
+    
 
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $perPage = $request->query('perPage', 10);
+        $search = $request->q;
+        $perPage = $request->input('perPage', 10);
 
         try {
             $query = Customer::where('user_id', auth()->user()->id)
-                ->where(function($query) use ($search) {
-                    $query->where('name', 'like', "%$search%")
-                        ->orWhere('brand', 'like', "%$search%")
-                        ->orWhere('ean_code', 'like', "%$search%")
-                        ->orWhereHas('products', function($query) use ($search) {
-                            $query->where('name', 'like', "%$search%");
-                        });
+                ->when($search, function ($query) use ($search) {
+                    return $query->where('company_name', 'like', '%' . $search . '%')
+                        ->orWhere('email', 'like', '%' . $search . '%');
                 });
 
             $customers = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse(200, 'Customers fetched successfully', $customers);
+
+            return $this->handleResponse('Customers fetched successfully', $customers);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -46,17 +41,12 @@ class CustomersController extends BaseController
     {
         try {
             $request->validate([
-                'name' => 'required',
-                'brand' => 'required',
-                'ean_code' => 'required',
-                'stock' => 'required',
-                'buying_price' => 'required',
-                'selling_price' => 'required',
-                'discount' => 'required',
+                'company_name' => 'required',
+                'email' => 'required',
             ]);
-
+            $request['user_id'] = auth()->user()->id;
             $customer = Customer::create($request->all());
-            return $this->handleResponse(200, 'Customer created successfully', $customer);
+            return $this->handleResponseNoPagination('Customer created successfully', $customer);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -65,11 +55,12 @@ class CustomersController extends BaseController
     /**
      * Display the specified resource.
      */
-    public function show(Customer $customer)
+    public function show(string $id)
     {
         try {
-            if ($customer->user_id == auth()->user()->id) {
-                return $this->handleResponse(200, 'Customer retrieved successfully', $customer);
+            $customer = Customer::where('user_id', auth()->user()->id)->find($id);
+            if ($customer) {
+                return $this->handleResponseNoPagination('Customer fetched successfully', 200, $customer);
             } else {
                 return $this->handleError('Customer not found', 400);
             }
@@ -84,8 +75,8 @@ class CustomersController extends BaseController
     public function update(Request $request, Customer $customer)
     {
         try {
-        $customer->update($request->all());
-        return $this->handleResponse(200, 'Customer updated successfully', $customer);
+            $customer->update($request->all());
+            return $this->handleResponseNoPagination('Customer updated successfully', $customer, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

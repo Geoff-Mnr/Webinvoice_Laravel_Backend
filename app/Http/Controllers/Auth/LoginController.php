@@ -15,7 +15,7 @@ class LoginController extends BaseController
         $request->validate([
             'email' => 'required|email',
             'password' => 'required',
-        ]);
+        ]);     
 
         $credentials = $request->only('email', 'password');
 

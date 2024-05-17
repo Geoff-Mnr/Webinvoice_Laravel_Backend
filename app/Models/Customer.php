@@ -16,16 +16,16 @@ class Customer extends Model
 
     protected $fillable = [
         'user_id',
-        'product_id',
-        'name',
-        'brand',
-        'ean_code',
-        'stock',
-        'buying_price',
-        'selling_price',
-        'discount',
-        'description',
-        'comment',
+        'company_name',
+        'email',
+        'phone_number',
+        'billing_address',
+        'billing_city',
+        'billing_state',
+        'billing_zip_code',
+        'billing_country',
+        'website',
+        'vat_number',
         'status',
         'is_active',
         'created_by',
@@ -33,18 +33,13 @@ class Customer extends Model
     ];
 
     protected $casts = [
-        'created_by' => CreatedByCast::class,
-        'updated_by' => UpdatedByCast::class,
+        'created_by' => \App\Casts\CreatedByCast::class,
+        'updated_by' => \App\Casts\UpdatedByCast::class,
     ];
 
     public function users()
     {
         return $this->hasMany(User::class, 'user_id');
-    }
-
-    public function products()
-    {
-        return $this->hasMany(Product::class, 'product_id');
     }
     
 }

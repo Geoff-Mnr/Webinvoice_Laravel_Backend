@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('customers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('user_id')->constrained();
-            $table->foreignId('product_id')->constrained();
             $table->string('company_name')->unique();
             $table->string('email')->unique();
             $table->string('phone_number');

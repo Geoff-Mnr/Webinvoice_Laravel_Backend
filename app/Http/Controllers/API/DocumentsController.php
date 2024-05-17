@@ -5,8 +5,8 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Document;
 use App\Models\Documenttype;
-use App\Http\Controllers\API\BaseController;
 use Illuminate\Http\Request;
+use App\Http\Controllers\BaseController;
 
 class DocumentsController extends BaseController
 {

@@ -13,5 +13,5 @@ abstract class Controller
     /**
      * The "booting" method of the controller.
      */
-    use AuthorizesRequests, DispatchesJobs, ValidatesRequests;
+    use AuthorizesRequests, ValidatesRequests;
 }

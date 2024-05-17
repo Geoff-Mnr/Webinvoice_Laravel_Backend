@@ -16,27 +16,27 @@ class BaseController extends Controller
      */
 
      public function handleResponse($message, $data, $code=200)
-    {
-        return response()->json([
-            'message' => $message,
-            'data' => $data,
-            'code' => $code,
-            'meta' => [
-            'total' => $data->total(),
-            'per_page' => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'last_page' => $data->lastPage(),
-            'from' => $data->firstItem(),
-            'to' => $data->lastItem()
-            ],
-            'links' => [
-                'prev' => $data->previousPageUrl(),
-                'next' => $data->nextPageUrl(),
-                'first' => $data->url(1),
-                'last' => $data->url($data->lastPage())
-            ]
-            ], $code);
-    }
+        {
+            return response()->json([
+                'message' => $message,
+                'data' => $data,
+                'code' => $code,
+                'meta' => [
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
+                ],
+                'links' => [
+                    'prev' => $data->previousPageUrl(),
+                    'next' => $data->nextPageUrl(),
+                    'first' => $data->url(1),
+                    'last' => $data->url($data->lastPage())
+                ]
+                ], $code);
+        }
     /**
      * Handle the error response
      *
@@ -45,7 +45,7 @@ class BaseController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function handleErrorResponse($message, $code = 404)
+    public function handleResponseError($message, $code = 404)
     {
         return response()->json([
             'message' => $message,
@@ -77,7 +77,7 @@ class BaseController extends Controller
      * @param int $code
      * @return \Illuminate\Http\JsonResponse
      */
-    public function handleResponseNoPagination($data, $message, $code = 200)
+    public function handleResponseNoPagination($message, $data, $code = 200)
     {
         return response()->json([
             'data' => $data,
