@@ -17,7 +17,7 @@ Route ::middleware('auth:sanctum')->group(function () {
         'customers' => \App\Http\Controllers\API\CustomersController::class,
         'products' => \App\Http\Controllers\API\ProductsController::class,
         'documents' => \App\Http\Controllers\API\DocumentsController::class,
-        'document-types' => \App\Http\Controllers\API\DocumentTypesController::class,
+        'documenttypes' => \App\Http\Controllers\API\DocumentTypesController::class,
     ]);
 });
 

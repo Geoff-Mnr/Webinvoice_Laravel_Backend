@@ -7,36 +7,42 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Http\Controllers\BaseController;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends BaseController
 {
     public function login(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required',
-        ]);     
+        try {
+            if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
+                $user = Auth::user();
+                
+                if ($user->is_active == 0) {
+                    return $this->handleError('Your account is banned', 403);
+                }
 
-        $credentials = $request->only('email', 'password');
-
-        if (auth()->attempt($credentials)) {
-            $request->user()->tokens()->delete();
-            $token = $request->user()->createToken('invoiceAuth', [], Carbon::now()->addHours(24))->plainTextToken;
-            $user = $request->user();
-            return $this->handleResponseNoPagination(['token' => $token, 
-            'user' => [
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $user->role->name ?? 'User',
-            ],
-            'access_token' => $token,
-            'token_type' => 'Bearer',
-            'expires_at' => Carbon::now()->addHours(24)->toDateTimeString(),
-        ], 
-            'Login successful', 200);
-        } else {
-            return $this->handleError('Invalid credentials', 401);
-        }    
+                $token = $user->createToken('LaravelSanctumAuth');
+                $plainToken = $token->plainTextToken;
+    
+                $expirationHours= 12;
+                $expiresAt = now()->addHours($expirationHours)->toDateTimeString();
+    
+                return $this->handleResponseNoPagination('Login successful', [
+                    'user' => [
+                        'username' => $user->username,
+                        'email' => $user->email,
+                        'role_name' => $user->role->name ?? 'User'
+                    ],  
+                    'access_token'=> $plainToken, 
+                    'token_type' => 'Bearer', 
+                    'expires_at' => $expiresAt
+                ], 200);
+            } else {
+                return $this->handleError('Invalid email or password', 401);
+            }
+        } catch (Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
     }
 }
 

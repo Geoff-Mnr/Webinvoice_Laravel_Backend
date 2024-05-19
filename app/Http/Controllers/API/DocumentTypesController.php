@@ -24,7 +24,7 @@ class DocumentTypesController extends BaseController
                 });
     
             $documenttypes = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse(200, 'Document types fetched successfully', $documenttypes);
+            return $this->handleResponse('Document types fetched successfully', $documenttypes);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -44,7 +44,7 @@ class DocumentTypesController extends BaseController
             ]);
 
             $documenttype = Documenttype::create($request->all());
-            return $this->handleResponse(200, 'Document type created successfully', $documenttype);
+            return $this->handleResponseNoPagination(200, 'Document type created successfully', $documenttype);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -68,15 +68,8 @@ class DocumentTypesController extends BaseController
     public function update(Request $request, Documenttype $documenttype)
     {
         try {
-            $request->validate([
-                'reference' => 'required',
-                'name' => 'required',
-                'description' => 'required',
-                'status' => 'required',
-            ]);
-
             $documenttype->update($request->all());
-            return $this->handleResponse(200, 'Document type updated successfully', $documenttype);
+            return $this->handleResponseNoPagination('Document type updated successfully', $documenttype);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

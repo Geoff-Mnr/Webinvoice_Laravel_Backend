@@ -6,8 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Customer;
 use App\Models\Documenttype;
-use Casts\CreatedByCast;
-use Casts\UpdatedByCast;
+
 
 class Document extends Model
 {
@@ -28,19 +27,14 @@ class Document extends Model
         'updated_by',
     ];
 
-    protected $casts = [
-        'created_by' => CreatedByCast::class,
-        'updated_by' => UpdatedByCast::class,
-    ];
-
     public function customers()
     {
-        return $this->hasMany(Customer::class, 'customer_id');
+        return $this->belongsTo(Customer::class);
     }
 
     public function documenttypes()
     {
-        return $this->hasMany(Documenttype::class, 'documenttype_id');
+        return $this->belongsTo(Documenttype::class);
     }
 
 }

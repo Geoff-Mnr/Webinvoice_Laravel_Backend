@@ -15,26 +15,40 @@ class DocumentsController extends BaseController
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $perPage = $request->query('perPage', 10);
+        $search = $request->q;
+        $perPage = $request->input('perPage', 10);
 
         try {
-            $query = Document::where('user_id', auth()->user()->id)
-                ->where(function($query) use ($search) {
-                    $query->where('reference_number', 'like', "%$search%")
-                        ->orWhere('document_date', 'like', "%$search%")
-                        ->orWhere('due_date', 'like', "%$search%")
-                        ->orWhere('price_htva', 'like', "%$search%")
-                        ->orWhere('price_vvac', 'like', "%$search%")
-                        ->orWhere('price_total', 'like', "%$search%")
-                        ->orWhere('status', 'like', "%$search%")
-                        ->orWhereHas('documenttypes', function($query) use ($search) {
-                            $query->where('name', 'like', "%$search%");
-                        });
+            $query = Document::with ('documenttypes', 'customers')
+                ->when($search, function ($query) use ($search) {
+                    return $query->where('reference_number', 'like', '%' . $search . '%')
+                        ->orWhere('price_total', 'like', '%' . $search . '%')
+                        ->orWhere('status', 'like', '%' . $search . '%')
+                        ->orWhereHas('documenttype', function ($query) use ($search) {
+                        return $query->where('name', 'like', '%' . $search . '%');
+                    });
                 });
 
             $documents = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse(200, 'Documents fetched successfully', $documents);
+            $documents->getCollection()->transform(function ($document) {
+                return [
+                    'id' => $document->id,
+                    'customer_id' => $document->customer_id,
+                    'documenttype_id' => $document->documenttype_id,
+                    'reference_number' => $document->reference_number,
+                    'document_date' => $document->document_date,
+                    'due_date' => $document->due_date,
+                    'price_htva' => $document->price_htva,
+                    'price_vvac' => $document->price_vvac,
+                    'price_total' => $document->price_total,
+                    'status' => $document->status,
+                    'created_by' => $document->created_by,
+                    'updated_by' => $document->updated_by,
+                    'created_at' => $document->created_at,
+                    'updated_at' => $document->updated_at,
+                ];
+            });
+            return $this->handleResponse('Documents fetched successfully', $documents);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -47,7 +61,6 @@ class DocumentsController extends BaseController
     {
         try {
             $request->validate([
-                'customer_id' => 'required',
                 'documenttype_id' => 'required',
                 'reference_number' => 'required',
                 'document_date' => 'required',
@@ -58,7 +71,7 @@ class DocumentsController extends BaseController
             ]);
 
             $document = Document::create($request->all());
-            return $this->handleResponse(200, 'Document created successfully', $document, 200);
+            return $this->handleResponseNoPagination('Document created successfully', $document);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -83,7 +96,7 @@ class DocumentsController extends BaseController
     {
         try {
             $document->update($request->all());
-            return $this->handleResponse(200, 'Document updated successfully', $document, 200);
+            return $this->handleResponseNoPagination('Document updated successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -96,7 +109,7 @@ class DocumentsController extends BaseController
     {
         try {
             $document->delete();
-            return $this->handleResponse(200, 'Document deleted successfully', null, 200);
+            return $this->handleResponse('Document deleted successfully', null, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }   

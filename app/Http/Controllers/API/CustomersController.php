@@ -26,6 +26,27 @@ class CustomersController extends BaseController
                 });
 
             $customers = $query->paginate($perPage)->withQueryString();
+            $customers->getCollection()->transform(function ($customer) {
+                return [
+                    'id' => $customer->id,
+                    'company_name' => $customer->company_name,
+                    'email' => $customer->email,
+                    'phone_number' => $customer->phone_number,
+                    'billing_address' => $customer->billing_address,
+                    'billing_city' => $customer->billing_city,
+                    'billing_state' => $customer->billing_state,
+                    'billing_zip_code' => $customer->billing_zip_code,
+                    'billing_country' => $customer->billing_country,
+                    'website' => $customer->website,
+                    'vat_number' => $customer->vat_number,
+                    'status' => $customer->status,
+                    'is_active' => $customer->is_active,
+                    'created_by' => $customer->created_by,
+                    'updated_by' => $customer->updated_by,
+                    'created_at' => $customer->created_at,
+                    'updated_at' => $customer->updated_at,
+                ];
+            });
 
             return $this->handleResponse('Customers fetched successfully', $customers);
         } catch (\Exception $e) {
@@ -44,7 +65,7 @@ class CustomersController extends BaseController
                 'company_name' => 'required',
                 'email' => 'required',
             ]);
-            $request['user_id'] = auth()->user()->id;
+            $request['user_id'] = $request->user()->id;
             $customer = Customer::create($request->all());
             return $this->handleResponseNoPagination('Customer created successfully', $customer);
         } catch (\Exception $e) {
@@ -60,6 +81,25 @@ class CustomersController extends BaseController
         try {
             $customer = Customer::where('user_id', auth()->user()->id)->find($id);
             if ($customer) {
+                $customerDate = [
+                    'id' => $customer->id,
+                    'company_name' => $customer->company_name,
+                    'email' => $customer->email,
+                    'phone_number' => $customer->phone_number,
+                    'billing_address' => $customer->billing_address,
+                    'billing_city' => $customer->billing_city,
+                    'billing_state' => $customer->billing_state,
+                    'billing_zip_code' => $customer->billing_zip_code,
+                    'billing_country' => $customer->billing_country,
+                    'website' => $customer->website,
+                    'vat_number' => $customer->vat_number,
+                    'status' => $customer->status,
+                    'is_active' => $customer->is_active,
+                    'created_by' => $customer->created_by,
+                    'updated_by' => $customer->updated_by,
+                    'created_at' => $customer->created_at,
+                    'updated_at' => $customer->updated_at,
+                ];
                 return $this->handleResponseNoPagination('Customer fetched successfully', 200, $customer);
             } else {
                 return $this->handleError('Customer not found', 400);

@@ -32,14 +32,10 @@ class Customer extends Model
         'updated_by',
     ];
 
-    protected $casts = [
-        'created_by' => \App\Casts\CreatedByCast::class,
-        'updated_by' => \App\Casts\UpdatedByCast::class,
-    ];
-
-    public function users()
+    
+    public function user()
     {
-        return $this->hasMany(User::class, 'user_id');
+        return $this->belongsTo(User::class);
     }
     
 }

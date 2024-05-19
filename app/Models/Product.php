@@ -28,11 +28,6 @@ class Product extends Model
         'updated_by',
     ];
 
-    protected $casts = [
-        'created_by' => CreatedByCast::class,
-        'updated_by' => UpdatedByCast::class,
-    ];
-
     public function documents()
     {
         return $this->belongsToMany(Document::class, 'product_documents', 'product_id', 'document_id');
