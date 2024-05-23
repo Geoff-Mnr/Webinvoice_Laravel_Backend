@@ -15,6 +15,7 @@ class Document extends Model
     protected $fillable = [
         'documenttype_id',
         'customer_id', 
+        'product_id',
         'reference_number',
         'document_date',
         'due_date',
@@ -35,6 +36,12 @@ class Document extends Model
     public function documenttype()
     {
         return $this->belongsTo(Documenttype::class);
+    }
+
+    public function products()
+    {
+        return $this->belongsToMany(Product::class, 'product_documents', 'document_id', 'product_id')
+        ->withPivot('quantity', 'price_htva', 'price_vvac', 'price_total', 'discount', 'comment', 'description', 'status', 'is_active', 'created_by', 'updated_by');
     }
 
 }

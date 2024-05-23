@@ -40,9 +40,9 @@ class DocumentsController extends BaseController
                 return [
                     'id' => $document->id,
                     'customer_id' => $document->customer_id,
-                    'documenttype_id' => $document->documenttype_id,
+                    'product_id' => $document->product_id,
+                    'documenttype' => $document->documenttype->name,
                     'reference_number' => $document->reference_number,
-                    'document_date' => $document->document_date,
                     'due_date' => $document->due_date,
                     'price_htva' => $document->price_htva,
                     'price_vvac' => $document->price_vvac,
@@ -50,8 +50,8 @@ class DocumentsController extends BaseController
                     'status' => $document->status,
                     'created_by' => $document->created_by,
                     'updated_by' => $document->updated_by,
-                    'created_at' => $document->created_at,
-                    'updated_at' => $document->updated_at,
+                    'created_at' => $document->created_at->format('Y-m-d'),
+                    'updated_at' => $document->updated_at->format('Y-m-d'),
                 ];
             });
             return $this->handleResponse('Documents fetched successfully', $documents);
@@ -68,6 +68,8 @@ class DocumentsController extends BaseController
         try {
             $request->validate([
                 'documenttype_id' => 'required',
+                'customer_id' => 'required',
+                'product_id' => 'required',
                 'reference_number' => 'required',
                 'document_date' => 'required',
                 'due_date' => 'required',
@@ -120,4 +122,5 @@ class DocumentsController extends BaseController
             return $this->handleError($e->getMessage(),400);
         }   
     }
+
 }

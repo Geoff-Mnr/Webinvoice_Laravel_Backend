@@ -65,7 +65,7 @@ class ProductsController extends BaseController
             ]);
 
             $product = Product::create($request->all());
-            return $this->handleResponse(201, 'Product created successfully', $product);
+            return $this->handleResponseNoPagination('Product created successfully', $product);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

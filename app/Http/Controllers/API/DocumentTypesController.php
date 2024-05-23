@@ -30,6 +30,10 @@ class DocumentTypesController extends BaseController
                     'reference' => $documenttype->reference,
                     'name' => $documenttype->name,
                     'description' => $documenttype->description,
+                    'created_by' => $documenttype->created_by,
+                    'updated_by' => $documenttype->updated_by,
+                    'created_at' => $documenttype->created_at->format('Y-m-d'),
+                    'updated_at' => $documenttype->updated_at->format('Y-m-d'),
                 ];
             });
             return $this->handleResponse('Document types fetched successfully', $documenttypes);
@@ -89,6 +93,16 @@ class DocumentTypesController extends BaseController
         try {
             $documenttype->update(['is_active' => 0]);
             return $this->handleResponse(200, 'Document type deleted successfully', $documenttype);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(),400);
+        }
+    }
+
+    public function ListDocumentTypes()
+    {
+        try {
+            $documentTypes = Documenttype:: all();
+            return $this->handleResponseNoPagination('Document types fetched successfully', $documentTypes, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

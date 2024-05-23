@@ -15,7 +15,6 @@ return new class extends Migration
             $table->id();
             $table->foreignId('document_id')->constrained();
             $table->foreignId('product_id')->constrained();
-            $table->foreignId('documenttype_id')->constrained();
             $table->integer('quantity')->default(0);
             $table->integer('discount')->default(0);
             $table->integer('price_htva')->default(0);

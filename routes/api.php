@@ -19,6 +19,7 @@ Route ::middleware('auth:sanctum')->group(function () {
         'documents' => \App\Http\Controllers\API\DocumentsController::class,
         'documenttypes' => \App\Http\Controllers\API\DocumentTypesController::class,
     ]);
+    Route::get('/list-documenttypes', [\App\Http\Controllers\API\DocumentTypesController::class, 'ListDocumentTypes']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
