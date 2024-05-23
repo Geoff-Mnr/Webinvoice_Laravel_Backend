@@ -19,15 +19,21 @@ class DocumentsController extends BaseController
         $perPage = $request->input('perPage', 10);
 
         try {
-            $query = Document::with ('documenttypes', 'customers')
-                ->when($search, function ($query) use ($search) {
-                    return $query->where('reference_number', 'like', '%' . $search . '%')
-                        ->orWhere('price_total', 'like', '%' . $search . '%')
-                        ->orWhere('status', 'like', '%' . $search . '%')
-                        ->orWhereHas('documenttype', function ($query) use ($search) {
-                        return $query->where('name', 'like', '%' . $search . '%');
-                    });
+            $query = Document::where('is_active', 1)
+                ->with ('documenttype')
+                ->where(function($query) use ($search) {
+                    $query->where('reference_number', 'like', "%$search%")
+                        ->orWhere('document_date', 'like', "%$search%")
+                        ->orWhere('due_date', 'like', "%$search%")
+                        ->orWhere('price_htva', 'like', "%$search%")
+                        ->orWhere('price_vvac', 'like', "%$search%")
+                        ->orWhere('price_total', 'like', "%$search%")
+                        ->orWhere('status', 'like', "%$search%")
+                        ->orWhereHas('documenttype', function($query) use ($search) {
+                            $query->where('name', 'like', "%$search%")
+                                ->orWhere('description', 'like', "%$search%");
                 });
+            });
 
             $documents = $query->paginate($perPage)->withQueryString();
             $documents->getCollection()->transform(function ($document) {

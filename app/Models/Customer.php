@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Product;
 use Casts\CreatedByCast;
 use Casts\UpdatedByCast;
+use App\Models\Document;
 
 
 class Customer extends Model
@@ -36,6 +37,11 @@ class Customer extends Model
     public function user()
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function document()
+    {
+        return $this->hasMany(Document::class);
     }
     
 }

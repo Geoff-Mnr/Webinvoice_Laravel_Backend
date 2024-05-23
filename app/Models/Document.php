@@ -13,8 +13,8 @@ class Document extends Model
     use HasFactory;
 
     protected $fillable = [
-        'customer_id',
         'documenttype_id',
+        'customer_id', 
         'reference_number',
         'document_date',
         'due_date',
@@ -27,12 +27,12 @@ class Document extends Model
         'updated_by',
     ];
 
-    public function customers()
+    public function customer()
     {
         return $this->belongsTo(Customer::class);
     }
 
-    public function documenttypes()
+    public function documenttype()
     {
         return $this->belongsTo(Documenttype::class);
     }

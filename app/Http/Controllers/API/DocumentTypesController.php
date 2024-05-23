@@ -13,8 +13,8 @@ class DocumentTypesController extends BaseController
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        $perPage = $request->query('perPage', 10);
+        $search = $request->q;
+        $perPage = $request->input('perPage', 10);
     
         try {
             $query = Documenttype::where('is_active', 1)
@@ -24,6 +24,14 @@ class DocumentTypesController extends BaseController
                 });
     
             $documenttypes = $query->paginate($perPage)->withQueryString();
+            $documenttypes->getCollection()->transform(function ($documenttype) {
+                return [
+                    'id' => $documenttype->id,
+                    'reference' => $documenttype->reference,
+                    'name' => $documenttype->name,
+                    'description' => $documenttype->description,
+                ];
+            });
             return $this->handleResponse('Document types fetched successfully', $documenttypes);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
@@ -39,12 +47,10 @@ class DocumentTypesController extends BaseController
             $request->validate([
                 'reference' => 'required',
                 'name' => 'required',
-                'description' => 'required',
-                'status' => 'required',
             ]);
 
             $documenttype = Documenttype::create($request->all());
-            return $this->handleResponseNoPagination(200, 'Document type created successfully', $documenttype);
+            return $this->handleResponseNoPagination('Document type created successfully', $documenttype);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -56,7 +62,7 @@ class DocumentTypesController extends BaseController
     public function show(Documenttype $documenttype)
     {
         try {
-            return $this->handleResponse(200, 'Document type fetched successfully', $documenttype);
+            return $this->handleResponse('Document type fetched successfully', $documenttype);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }   

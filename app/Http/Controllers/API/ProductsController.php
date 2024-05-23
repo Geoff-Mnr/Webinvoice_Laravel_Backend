@@ -35,6 +35,8 @@ class ProductsController extends BaseController
                     'buying_price' => $product->buying_price,
                     'selling_price' => $product->selling_price,
                     'discount' => $product->discount,
+                    'comment' => $product->comment,
+                    'description' => $product->description,
                     'created_at' => $product->created_at,
                     'updated_at' => $product->updated_at,
                 ];
