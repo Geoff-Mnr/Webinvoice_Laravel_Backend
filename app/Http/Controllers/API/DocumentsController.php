@@ -75,7 +75,7 @@ class DocumentsController extends BaseController
             $request->validate([
                 'documenttype_id' => 'required',
                 'customer_id' => 'required',
-                'product_id' => 'required',
+                'product_id' => 'required|array', // Change this line
                 'reference_number' => 'required',
                 'due_date' => 'required',
                 'document_date' => 'required',
@@ -87,13 +87,14 @@ class DocumentsController extends BaseController
             $document = Document::create($request->all());
 
             foreach ($request->product_id as $productId) {
-                $product = Product::find($request->product_id);
-                    if ($product) {
+                $product = Product::find($productId); // Change this line
+                if ($product) {
                     $product->documents()->attach($document->id);
-                    } else {
-                        return $this->handleError('Product not found', 404);
-                    }
+                } else {
+                    return $this->handleError('Product not found', 404);
+                }
             }
+
             return $this->handleResponseNoPagination('Document created successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
