@@ -138,4 +138,14 @@ class CustomersController extends BaseController
             return $this->handleError($e->getMessage(),400);
         }
     }
+
+    public function ListCustomers()
+    {
+        try {
+            $customers = Customer::where('user_id', auth()->user()->id)->get();
+            return $this->handleResponseNoPagination('Customers fetched successfully', $customers, 200);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(),400);
+        }
+    }
 }

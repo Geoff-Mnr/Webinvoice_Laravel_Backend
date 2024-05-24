@@ -108,4 +108,14 @@ class ProductsController extends BaseController
             return $this->handleError($e->getMessage(),400);
         }
     }
+
+    public function ListProducts()
+    {
+        try {
+            $products = Product::all();
+            return $this->handleResponseNoPagination('Products fetched successfully', $products, 200);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(),400);
+        }
+    }
 }

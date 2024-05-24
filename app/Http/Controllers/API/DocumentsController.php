@@ -5,8 +5,10 @@ namespace App\Http\Controllers\API;
 
 use App\Models\Document;
 use App\Models\Documenttype;
+use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use carbon\carbon;
 
 class DocumentsController extends BaseController
 {
@@ -40,18 +42,22 @@ class DocumentsController extends BaseController
                 return [
                     'id' => $document->id,
                     'customer_id' => $document->customer_id,
+                    'customer' => $document->customer->company_name,
                     'product_id' => $document->product_id,
+                    'product' => $document->products->pluck('name'),
+                    'documenttype_id' => $document->documenttype_id,
                     'documenttype' => $document->documenttype->name,
                     'reference_number' => $document->reference_number,
-                    'due_date' => $document->due_date,
+                    'document_date' => Carbon::parse($document->document_date)->format('d/m/Y'),
+                    'due_date' => Carbon::parse($document->due_date)->format('d/m/Y'),
                     'price_htva' => $document->price_htva,
                     'price_vvac' => $document->price_vvac,
                     'price_total' => $document->price_total,
                     'status' => $document->status,
                     'created_by' => $document->created_by,
                     'updated_by' => $document->updated_by,
-                    'created_at' => $document->created_at->format('Y-m-d'),
-                    'updated_at' => $document->updated_at->format('Y-m-d'),
+                    'created_at' => Carbon::parse($document->created_at)->format('d/m/Y H:i:s'),
+                    'updated_at' => Carbon::parse($document->updated_at)->format('d/m/Y H:i:s'),
                 ];
             });
             return $this->handleResponse('Documents fetched successfully', $documents);
@@ -71,15 +77,24 @@ class DocumentsController extends BaseController
                 'customer_id' => 'required',
                 'product_id' => 'required',
                 'reference_number' => 'required',
-                'document_date' => 'required',
                 'due_date' => 'required',
+                'document_date' => 'required',
                 'price_htva' => 'required',
                 'price_vvac' => 'required',
                 'price_total' => 'required',
             ]);
 
             $document = Document::create($request->all());
-            return $this->handleResponseNoPagination('Document created successfully', $document);
+
+            foreach ($request->product_id as $productId) {
+                $product = Product::find($request->product_id);
+                    if ($product) {
+                    $product->documents()->attach($document->id);
+                    } else {
+                        return $this->handleError('Product not found', 404);
+                    }
+            }
+            return $this->handleResponseNoPagination('Document created successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -104,6 +119,8 @@ class DocumentsController extends BaseController
     {
         try {
             $document->update($request->all());
+
+            $document->products()->sync($request->product_id);
             return $this->handleResponseNoPagination('Document updated successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
