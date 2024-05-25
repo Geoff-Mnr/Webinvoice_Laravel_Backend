@@ -176,9 +176,20 @@ class UsersController extends BaseController
         }
     }
 
-
-
-
-
-
+    public function getUserProfile (Request $request)
+    {
+        try {
+            $user = $request->user();
+            $userData = [
+                'id' => $user->id,
+                'username' => $user->username,
+                'email' => $user->email,
+                'role' => $user->roles->name ?? 'User',
+            ];
+            return $this->handleResponse(200, 'User profile retrieved successfully', $user);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
+    }
 }
+
