@@ -186,7 +186,7 @@ class UsersController extends BaseController
                 'email' => $user->email,
                 'role' => $user->roles->name ?? 'User',
             ];
-            return $this->handleResponse(200, 'User profile retrieved successfully', $user);
+            return $this->handleResponseNoPagination('User profile retrieved successfully', $userData, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
