@@ -24,7 +24,7 @@ return new class extends Migration
             $table->string('city')->nullable();
             $table->string('zip_code')->nullable();
             $table->string('country')->nullable();
-            $table->string('profile_picture')->nullable(); 
+            $table->longText('profile_picture')->nullable(); 
             $table->string('status', 1)->default('N');
             $table->boolean('is_active')->default(true);
             $table->unsignedInteger('created_by')->nullable(false)->default(1);

@@ -38,7 +38,7 @@ class UsersController extends BaseController
                 ->with('roles')
                 ->get();
 
-            return $this->sendResponse($users, 'Users retrieved successfully.');
+            return $this->sendResponse($users, 'Users retrieved successfully.', 200);
         } catch (\Exception $e) {
             return $this->sendError('Server Error.', $e->getMessage(), 400);
         }
@@ -63,7 +63,7 @@ class UsersController extends BaseController
             $input ['password'] = bcrypt($request->password);
 
             $user = User::create($request->all());
-            return $this->handleResponse(200, 'User created successfully', $user);
+            return $this->handleResponse('User created successfully', $user, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
@@ -77,7 +77,7 @@ class UsersController extends BaseController
         try {
             $user = User::where('id', $id)->with('roles')->first();
             if ($user) {
-                return $this->handleResponseNoPagination($user, 'User retrieved successfully.');
+                return $this->handleResponseNoPagination($user, 'User retrieved successfully.', 200);
             } else {
                 return $this->handleError('User not found.', 400);
             }
@@ -95,21 +95,23 @@ class UsersController extends BaseController
         try {
             $user = User::find($id);
             if ($user) {
-                $request->validate([
-                    'role_id' => ['required', 'exists:roles,id'],
-                    'username' => ['required', 'unique:users,username,' . $id],
-                    'first_name' => 'required',
-                    'last_name' => 'required',
-                    'email' => 'required|email',
-                    'password' => 'required',
-                    'confirm_password' => 'required|same:password',
-                ]);
-    
                 $input = $request->all();
-                $input['password'] = bcrypt($request->password);
-    
+                if ($request->has('password')){
+                    $input['password'] = bcrypt($request->password);
+                }  
+                if ($request->hasFile('profile_picture')) {
+                    $oldImage = public_path('images/profile_pictures/' . $user->profile_picture);
+                    if (file_exists($oldImage)) {
+                        unlink($oldImage);
+                    }
+                    $file = $request->file('profile_picture');
+                    $fileName = time() . '.' . $file->getClientOriginalExtension();
+                    $path = public_path('images/profile_pictures/' . $fileName);
+                    $input['profile_picture'] = $fileName;
+                    Image::make($file)->resize(200, 200)->save($path);
+                }
                 $user->update($input);
-                return $this->handleResponse(200, 'User updated successfully', $user);
+                return $this->handleResponseNoPagination('User updated successfully', $user, 200);
             } else {
                 return $this->handleError('User not found.', 400);
             }
@@ -142,32 +144,7 @@ class UsersController extends BaseController
             $user = User::withTrashed()->find($id);
             if ($user) {
                 $user->restore();
-                return $this->handleResponse(200, 'User restored successfully', $user);
-            } else {
-                return $this->handleError('User not found.', 400);
-            }
-        } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(), 400);
-        }
-    }
-
-    //my champ is profile_picture
-
-    public function uploadProfilePicture(Request $request, string $id)
-    {
-        try {
-            $user = User::find($id);
-            if ($user) {
-                $request->validate([
-                    'profile_picture' => 'required|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
-                ]);
-
-                $image = $request->file('profile_picture');
-                $imageName = time() . '.' . $image->extension();
-                $image->move(public_path('images'), $imageName);
-                $user->profile_picture = $imageName;
-                $user->save();
-                return $this->handleResponse(200, 'Profile picture uploaded successfully', $user);
+                return $this->handleResponse(200, 'User restored successfully', $user, 200);
             } else {
                 return $this->handleError('User not found.', 400);
             }
@@ -185,6 +162,14 @@ class UsersController extends BaseController
                 'username' => $user->username,
                 'email' => $user->email,
                 'role' => $user->roles->name ?? 'User',
+                'profile_picture' => $user->profile_picture,
+                'first_name' => $user->first_name,
+                'last_name' => $user->last_name,
+                'phone_number' => $user->phone_number,
+                'address' => $user->address,
+                'city' => $user->city,
+                'country' => $user->country,
+                'zip_code' => $user->zip_code,
             ];
             return $this->handleResponseNoPagination('User profile retrieved successfully', $userData, 200);
         } catch (\Exception $e) {
