@@ -2,13 +2,15 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\InvoiceController;
+
 
 
 
 
 Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
-
+Route::get('/invoice', [\App\Http\Controllers\InvoiceController::class, 'generateInvoice']);
 
 Route ::middleware('auth:sanctum')->group(function () {
     Route::apiResources([
@@ -23,6 +25,7 @@ Route ::middleware('auth:sanctum')->group(function () {
     Route::get('/list-customers', [\App\Http\Controllers\API\CustomersController::class, 'ListCustomers']);
     Route::get('/list-products', [\App\Http\Controllers\API\ProductsController::class, 'ListProducts']);
     Route::get('/profile-user', [\App\Http\Controllers\API\UsersController::class, 'getUserProfile']);
+    
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
