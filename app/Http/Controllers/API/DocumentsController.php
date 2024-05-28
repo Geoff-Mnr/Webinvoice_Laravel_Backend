@@ -21,7 +21,7 @@ class DocumentsController extends BaseController
         $perPage = $request->input('perPage', 10);
 
         try {
-            $query = Document::where('is_active', 1)
+            $query = Document::where('user_id', auth()->user()->id)
                 ->with ('documenttype')
                 ->where(function($query) use ($search) {
                     $query->where('reference_number', 'like', "%$search%")
@@ -83,7 +83,7 @@ class DocumentsController extends BaseController
                 'price_vvac' => 'required',
                 'price_total' => 'required',
             ]);
-
+            $request['user_id'] = auth()->user()->id;
             $documentData = $request->except('product_id'); // Change this line
             $document = Document::create($documentData);
 
@@ -113,6 +113,7 @@ class DocumentsController extends BaseController
     public function show(Document $document)
     {
         try {
+            $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();
             return $this->handleResponse(200, 'Document retrieved successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);

@@ -109,6 +109,8 @@ class UsersController extends BaseController
                     $path = public_path('images/profile_pictures/' . $fileName);
                     $input['profile_picture'] = $fileName;
                     Image::make($file)->resize(200, 200)->save($path);
+                } else {
+                    $input['profile_picture'] = $user->profile_picture;
                 }
                 $user->update($input);
                 return $this->handleResponseNoPagination('User updated successfully', $user, 200);
