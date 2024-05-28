@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('documenttypes', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->string('reference')->unique();
             $table->string('name')->unique();
             $table->longText('description')->nullable();

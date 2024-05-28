@@ -18,7 +18,8 @@ class ProductsController extends BaseController
         $perPage = $request->input('perPage', 10);
 
         try {
-            $query = Product::when($search, function($query) use ($search) {
+            $query = Product::where('user_id', auth()->user()->id)
+                ->when($search, function($query) use ($search) {
                     $query->where('name', 'like', "%$search%")
                         ->orWhere('brand', 'like', "%$search%")
                         ->orWhere('ean_code', 'like', "%$search%");
@@ -63,7 +64,7 @@ class ProductsController extends BaseController
                 'selling_price' => 'required',
                 'discount' => 'required',
             ]);
-
+            $request['user_id'] = auth()->user()->id;
             $product = Product::create($request->all());
             return $this->handleResponseNoPagination('Product created successfully', $product);
         } catch (\Exception $e) {
@@ -77,6 +78,7 @@ class ProductsController extends BaseController
     public function show(Product $product)
     {
         try {
+            $product = Product::where('user_id', auth()->user()->id)->where('id', $product->id)->first();
             return $this->handleResponse(200, 'Product retrieved successfully', $product);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
@@ -102,12 +104,17 @@ class ProductsController extends BaseController
     public function destroy(Product $product)
     {
         try {
-            $product->delete();
-            return $this->handleResponse(200, 'Product deleted successfully');
+            if ($product->user_id == auth()->user()->id) {
+                $product->delete();
+                return $this->handleResponse('Product deleted successfully', $product, 200);
+            } else {
+                return $this->handleError('Product not found', 400);
+            } 
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
     }
+
 
     public function ListProducts()
     {

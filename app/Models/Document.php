@@ -13,9 +13,9 @@ class Document extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'documenttype_id',
-        'customer_id', 
-        'product_id',
+        'customer_id',
         'reference_number',
         'document_date',
         'due_date',
@@ -36,6 +36,11 @@ class Document extends Model
     public function documenttype()
     {
         return $this->belongsTo(Documenttype::class);
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 
     public function products()

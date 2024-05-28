@@ -84,15 +84,21 @@ class DocumentsController extends BaseController
                 'price_total' => 'required',
             ]);
 
-            $document = Document::create($request->all());
+            $documentData = $request->except('product_id'); // Change this line
+            $document = Document::create($documentData);
 
+            $notFoundProducts = [];
             foreach ($request->product_id as $productId) {
                 $product = Product::find($productId); // Change this line
                 if ($product) {
                     $product->documents()->attach($document->id);
                 } else {
-                    return $this->handleError('Product not found', 404);
+                    $notFoundProducts[] = $productId;
                 }
+            }
+
+            if (!empty($notFoundProducts)) {
+                return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
             }
 
             return $this->handleResponseNoPagination('Document created successfully', $document, 200);

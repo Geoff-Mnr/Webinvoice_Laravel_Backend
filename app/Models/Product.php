@@ -13,6 +13,7 @@ class Product extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'name',
         'brand',
         'ean_code',
@@ -33,4 +34,13 @@ class Product extends Model
         return $this->belongsToMany(Document::class, 'document_product', 'product_id', 'document_id')
         ->withPivot('quantity', 'price_htva', 'price_vvac', 'price_total', 'discount', 'comment', 'description', 'status', 'is_active', 'created_by', 'updated_by');
     }
+
+    
+    
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+
 }

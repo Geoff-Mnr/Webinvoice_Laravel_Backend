@@ -14,7 +14,6 @@ return new class extends Migration
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
             $table->foreignId('customer_id')->constrained();
-            $table->foreignId('product_id')->constrained();
             $table->foreignId('documenttype_id')->constrained();
             $table->string('reference_number')->unique();
             $table->dateTime('document_date');

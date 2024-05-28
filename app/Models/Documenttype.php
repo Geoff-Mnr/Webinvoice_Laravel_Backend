@@ -13,6 +13,7 @@ class Documenttype extends Model
     use HasFactory;
 
     protected $fillable = [
+        'user_id',
         'reference',
         'name',
         'description',
@@ -27,5 +28,10 @@ class Documenttype extends Model
     public function documents()
     {
         return $this->hasMany(Document::class, 'documenttype_id');
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
     }
 }

@@ -17,7 +17,7 @@ class DocumentTypesController extends BaseController
         $perPage = $request->input('perPage', 10);
     
         try {
-            $query = Documenttype::where('is_active', 1)
+            $query = Documenttype::where('user_id', auth()->user()->id)
                 ->where(function($query) use ($search) {
                     $query->where('reference', 'like', "%$search%")
                         ->orWhere('name', 'like', "%$search%");
@@ -52,7 +52,7 @@ class DocumentTypesController extends BaseController
                 'reference' => 'required',
                 'name' => 'required',
             ]);
-
+            $request['user_id'] = auth()->user()->id;
             $documenttype = Documenttype::create($request->all());
             return $this->handleResponseNoPagination('Document type created successfully', $documenttype);
         } catch (\Exception $e) {
@@ -63,9 +63,10 @@ class DocumentTypesController extends BaseController
     /**
      * Display the specified resource.
      */
-    public function show(Documenttype $documenttype)
+    public function show(string $id)
     {
         try {
+            $documenttype = Documenttype::where('user_id', auth()->user()->id)->where('id', $id)->first();
             return $this->handleResponse('Document type fetched successfully', $documenttype);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
@@ -101,7 +102,7 @@ class DocumentTypesController extends BaseController
     public function ListDocumentTypes()
     {
         try {
-            $documentTypes = Documenttype:: all();
+            $documentTypes = Documenttype:: where('user_id', auth()->user()->id)->where('is_active', 1)->get();
             return $this->handleResponseNoPagination('Document types fetched successfully', $documentTypes, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
