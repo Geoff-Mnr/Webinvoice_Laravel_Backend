@@ -155,15 +155,9 @@ class DocumentsController extends BaseController
      * Generate reference number
      */
     private function generateReferenceNumber(){
-        $lastDocument = Document::orderBy('created_at', 'desc')->first();
-        if($lastDocument) {
-            $lastId = $lastDocument->id;
-            $newId = $lastId + 1;
-        } else {
-            $newId = 1;
-        }
-        $referenceNumber = 'FACTURE-' . str_pad($newId, 4, '0', STR_PAD_LEFT);
-        return $referenceNumber;
+       $lastDocument = Document::where('user_id', auth()->user()->id)->latest()->first();
+       $lastDocumentId = $lastDocument ? $lastDocument->id : 0;
+       return 'DOC-' . str_pad($lastDocumentId + 1, 5, '0', STR_PAD_LEFT);
     }
 
 }
