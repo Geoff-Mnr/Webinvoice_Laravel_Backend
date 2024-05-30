@@ -21,6 +21,7 @@ return new class extends Migration
             $table->string('buying_price');
             $table->string('selling_price');
             $table->string('discount')->default(0);
+            $table->string('margin')->default(0);
             $table->longText('description')->nullable();
             $table->longText('comment')->nullable();
             $table->string('status', 1)->default('N');

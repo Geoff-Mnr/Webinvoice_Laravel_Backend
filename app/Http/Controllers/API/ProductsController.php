@@ -36,6 +36,7 @@ class ProductsController extends BaseController
                     'buying_price' => $product->buying_price,
                     'selling_price' => $product->selling_price,
                     'discount' => $product->discount,
+                    'margin' => $product->margin,
                     'comment' => $product->comment,
                     'description' => $product->description,
                     'created_at' => $product->created_at,
@@ -61,10 +62,10 @@ class ProductsController extends BaseController
                 'ean_code' => 'required',
                 'stock' => 'required',
                 'buying_price' => 'required',
-                'selling_price' => 'required',
                 'discount' => 'required',
+                'margin' => 'required',
             ]);
-            $request['user_id'] = auth()->user()->id;
+            $request['user_id'] = auth()->user()->id;  
             $product = Product::create($request->all());
             return $this->handleResponseNoPagination('Product created successfully', $product);
         } catch (\Exception $e) {
@@ -91,6 +92,17 @@ class ProductsController extends BaseController
     public function update(Request $request, Product $product)
     {
         try {
+            $request->validate([
+                'name' => 'required',
+                'brand' => 'required',
+                'ean_code' => 'required',
+                'stock' => 'required',
+                'buying_price' => 'required',
+                'discount' => 'required',
+                'margin' => 'required',
+            ]);
+
+            $updateData = $request->except('selling_price');
             $product->update($request->all());
             return $this->handleResponseNoPagination('Product updated successfully', $product);
         } catch (\Exception $e) {

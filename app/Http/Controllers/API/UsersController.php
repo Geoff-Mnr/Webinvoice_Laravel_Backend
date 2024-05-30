@@ -100,18 +100,15 @@ class UsersController extends BaseController
                     $input['password'] = bcrypt($request->password);
                 }  
                 if ($request->hasFile('profile_picture')) {
-                    $oldImage = public_path('images/profile_pictures/' . $user->profile_picture);
+                    $oldImage = public_path('images/profile_pictures/') . $user->profile_picture;
                     if (file_exists($oldImage)) {
                         unlink($oldImage);
                     }
                     $file = $request->file('profile_picture');
                     $fileName = time() . '.' . $file->getClientOriginalExtension();
-                    $path = public_path('images/profile_pictures/' . $fileName);
+                    $file->move(public_path('images/profile_pictures/'), $fileName);
                     $input['profile_picture'] = $fileName;
-                    Image::make($file)->resize(200, 200)->save($path);
-                } else {
-                    $input['profile_picture'] = $user->profile_picture;
-                }
+                } 
                 $user->update($input);
                 return $this->handleResponseNoPagination('User updated successfully', $user, 200);
             } else {

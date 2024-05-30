@@ -75,16 +75,19 @@ class DocumentsController extends BaseController
             $request->validate([
                 'documenttype_id' => 'required',
                 'customer_id' => 'required',
-                'product_id' => 'required|array', // Change this line
-                'reference_number' => 'required',
+                'product_id' => 'required|array', 
                 'due_date' => 'required',
                 'document_date' => 'required',
                 'price_htva' => 'required',
                 'price_vvac' => 'required',
-                'price_total' => 'required',
             ]);
             $request['user_id'] = auth()->user()->id;
-            $documentData = $request->except('product_id'); // Change this line
+            $request['reference_number'] = $this->generateReferenceNumber();
+            $documentData = $request->except('product_id');
+            $vat_rate = $request['price_vvac'];
+            $vat_amount = $request['price_htva'] * $vat_rate / 100;
+
+            $documentData['price_total'] = $request['price_htva'] + $vat_amount;
             $document = Document::create($documentData);
 
             $notFoundProducts = [];
@@ -114,7 +117,7 @@ class DocumentsController extends BaseController
     {
         try {
             $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();
-            return $this->handleResponse(200, 'Document retrieved successfully', $document, 200);
+            return $this->handleResponseNoPagination(200, 'Document retrieved successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }
@@ -146,6 +149,21 @@ class DocumentsController extends BaseController
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }   
+    }
+
+    /**
+     * Generate reference number
+     */
+    private function generateReferenceNumber(){
+        $lastDocument = Document::orderBy('created_at', 'desc')->first();
+        if($lastDocument) {
+            $lastId = $lastDocument->id;
+            $newId = $lastId + 1;
+        } else {
+            $newId = 1;
+        }
+        $referenceNumber = 'FACTURE-' . str_pad($newId, 4, '0', STR_PAD_LEFT);
+        return $referenceNumber;
     }
 
 }
