@@ -123,6 +123,6 @@ class DocumentTypesController extends BaseController
     {
         $lastDocumentType = Documenttype::latest()->first();
         $lastDocumentTypeId = $lastDocumentType ? $lastDocumentType->id : 0;
-        return 'DOC-' . str_pad($lastDocumentTypeId + 1, 4, '0', STR_PAD_LEFT);
+        return 'TDOC-' . str_pad($lastDocumentTypeId + 1, 2, '0', STR_PAD_LEFT);
     }
 }

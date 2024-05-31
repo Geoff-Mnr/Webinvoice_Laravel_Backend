@@ -205,7 +205,7 @@ class DocumentsController extends BaseController
             }
         }
     
-        return $prefix . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+        return $prefix . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
     }
 }
 
