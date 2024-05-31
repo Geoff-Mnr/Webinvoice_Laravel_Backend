@@ -15,7 +15,7 @@ class BaseController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-     public function handleResponse($message, $data, $code=200)
+    public function handleResponse($message, $data, $code=200)
         {
             return response()->json([
                 'message' => $message,
@@ -60,7 +60,7 @@ class BaseController extends Controller
      * @param int $code
      * @return \Illuminate\Http\JsonResponse
      */
-  
+
     public function handleSuccessResponse($message, $code = 200)
     {
         return response()->json([
@@ -85,19 +85,9 @@ class BaseController extends Controller
             'code' => $code,
         ], $code);
     }
-
-    /**
-     * Handle the error response
-     *
-     * @param $message
-     * @param int $code
-     * @return \Illuminate\Http\JsonResponse
-     */
-    public function handleError($message, $code = 404)
-    {
-        return response()->json([
-            'message' => $message,
-            'code' => $code
-        ], $code);
-    }
 }
+
+
+
+
+
