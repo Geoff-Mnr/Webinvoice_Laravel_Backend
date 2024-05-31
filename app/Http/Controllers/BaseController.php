@@ -85,6 +85,22 @@ class BaseController extends Controller
             'code' => $code,
         ], $code);
     }
+
+    /**
+     * Handle the response with pagination
+     *
+     * @param $data
+     * @param $message
+     * @param int $code
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function handleError($message, $code = 404)
+    {
+        return response()->json([
+            'message' => $message,
+            'code' => $code
+        ], $code);
+    }
 }
 
 

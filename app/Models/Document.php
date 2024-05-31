@@ -43,7 +43,7 @@ class Document extends Model
         return $this->belongsTo(User::class);
     }
 
-    public function product()
+    public function products()
     {
         return $this->belongsToMany(Product::class, 'document_product', 'document_id', 'product_id')
         ->withPivot('quantity', 'price_htva', 'price_vvac', 'price_total', 'discount', 'comment', 
