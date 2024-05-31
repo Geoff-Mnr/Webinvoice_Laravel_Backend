@@ -82,7 +82,7 @@ class DocumentsController extends BaseController
                 'price_vvac' => 'required',
             ]);
             $request['user_id'] = auth()->user()->id;
-            $request['reference_number'] = $this->generateReferenceNumber();
+            $request['reference_number'] = $this->generateReferenceNumber($request['documenttype_id']);
             $documentData = $request->except('product_id');
             $vat_rate = $request['price_vvac'];
             $vat_amount = $request['price_htva'] * $vat_rate / 100;
@@ -181,13 +181,27 @@ class DocumentsController extends BaseController
         }   
     }
 
-    /**
-     * Generate reference number
-     */
-    private function generateReferenceNumber(){
-       $lastDocument = Document::where('user_id', auth()->user()->id)->latest()->first();
-       $lastDocumentId = $lastDocument ? $lastDocument->id : 0;
-       return 'DOC-' . str_pad($lastDocumentId + 1, 5, '0', STR_PAD_LEFT);
-    }
 
+    /**
+     * Generate a reference number for a document
+     */
+    private function generateReferenceNumber($documenttype_id){
+        $prefix = 'DOCU-';
+        if($documenttype_id == 1) { // Assuming 1 is the id for invoices
+            $prefix = 'FACT-';
+        }
+        $documents = Document::where('user_id', auth()->user()->id)
+                            ->where('documenttype_id', $documenttype_id)
+                            ->get();
+
+        $lastNumber = 0;
+        foreach ($documents as $document) {
+            $number = intval(str_replace($prefix, '', $document->reference_number));
+            if ($number > $lastNumber) {
+                $lastNumber = $number;
+            }
+        }
+
+        return $prefix . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
+    }
 }
