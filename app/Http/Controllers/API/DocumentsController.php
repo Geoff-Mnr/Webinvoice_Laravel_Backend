@@ -126,12 +126,42 @@ class DocumentsController extends BaseController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Document $document)
+    public function update(Request $request, $id)
     {
         try {
-            $document->update($request->all());
+            $request->validate([
+                'documenttype_id' => 'required',
+                'customer_id' => 'required',
+                'product_id' => 'required|array', 
+                'due_date' => 'required',
+                'document_date' => 'required',
+                'price_htva' => 'required',
+                'price_vvac' => 'required',
+            ]);
 
-            $document->products()->sync($request->product_id);
+            $document = Document::findOrfail($id);
+            $documentData = $request->except('product_id');
+
+            $vat_rate = $request['price_vvac'];
+            $vat_amount = $request['price_htva'] * $vat_rate / 100;
+            $documentData['price_total'] = $request['price_htva'] + $vat_amount;
+
+
+            $document->update($documentData);
+            $document->products()->detach();
+            $notFoundProducts = [];
+            foreach ($request->product_id as $productId) {
+                $product = Product::find($productId); // Change this line
+                if ($product) {
+                    $product->documents()->attach($document->id);
+                } else {
+                    $notFoundProducts[] = $productId;
+                }
+            }
+
+            if (!empty($notFoundProducts)) {
+                return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
+            }
             return $this->handleResponseNoPagination('Document updated successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);

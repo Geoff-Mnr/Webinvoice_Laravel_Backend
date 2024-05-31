@@ -96,7 +96,7 @@ class UsersController extends BaseController
             $user = User::find($id);
             if ($user) {
                 $input = $request->all();
-                if ($request->has('password')){
+                if ($request->filled('password')){
                     $input['password'] = bcrypt($request->password);
                 }  
                 if ($request->hasFile('profile_picture')) {
