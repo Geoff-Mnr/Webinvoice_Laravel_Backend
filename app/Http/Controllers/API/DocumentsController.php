@@ -185,15 +185,18 @@ class DocumentsController extends BaseController
     /**
      * Generate a reference number for a document
      */
-    private function generateReferenceNumber($documenttype_id){
+    
+     private function generateReferenceNumber($documenttype_id){
         $prefix = 'DOCU-';
+    
         if($documenttype_id == 1) { // Assuming 1 is the id for invoices
             $prefix = 'FACT-';
         }
+        
         $documents = Document::where('user_id', auth()->user()->id)
-                            ->where('documenttype_id', $documenttype_id)
+                            ->where('reference_number', 'like', $prefix . '%')
                             ->get();
-
+    
         $lastNumber = 0;
         foreach ($documents as $document) {
             $number = intval(str_replace($prefix, '', $document->reference_number));
@@ -201,7 +204,8 @@ class DocumentsController extends BaseController
                 $lastNumber = $number;
             }
         }
-
+    
         return $prefix . str_pad($lastNumber + 1, 5, '0', STR_PAD_LEFT);
     }
 }
+
