@@ -6,16 +6,16 @@ use App\Models\Product;
 use App\Models\Document;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use App\Http\Resources\ProductResource;
 
 class ProductsController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, $perPage = 10)
     {
         $search = $request->q;
-        $perPage = $request->input('perPage', 10);
 
         try {
             $query = Product::where('user_id', auth()->user()->id)
@@ -25,30 +25,13 @@ class ProductsController extends BaseController
                         ->orWhere('ean_code', 'like', "%$search%");
                 });
 
-            $products = $query->paginate($perPage)->withQueryString();
-            $products->getCollection()->transform(function ($product) {
-                return [
-                    'id' => $product->id,
-                    'name' => $product->name,
-                    'brand' => $product->brand,
-                    'ean_code' => $product->ean_code,
-                    'quantity' => $product->quantity,
-                    'buying_price' => $product->buying_price,
-                    'selling_price' => $product->selling_price,
-                    'discount' => $product->discount,
-                    'margin' => $product->margin,
-                    'comment' => $product->comment,
-                    'description' => $product->description,
-                    'created_at' => $product->created_at,
-                    'updated_at' => $product->updated_at,
-                ];
-            });
-            return $this->handleResponse('Products fetched successfully', $products);
+            $products = $query->paginate($perPage);
+            return $this->handleResponse(ProductResource::collection($products), 'Products retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 500);
         }
-        
     }
+            
 
     /**
      * Store a newly created resource in storage.
@@ -132,7 +115,7 @@ class ProductsController extends BaseController
     {
         try {
             $products = Product::where('user_id', auth()->user()->id)->get();
-            return $this->handleResponseNoPagination('Products fetched successfully', $products, 200);
+            return $this->handleResponseNoPagination(ProductResource::collection($products), 'Products retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

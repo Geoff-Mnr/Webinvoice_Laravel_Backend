@@ -80,9 +80,9 @@ class BaseController extends Controller
     public function handleResponseNoPagination($data, $message, $code = 200)
     {
         return response()->json([
-            'data' => $data,
             'message' => $message,
             'code' => $code,
+            'data' => $data,
         ], $code);
     }
 
