@@ -131,7 +131,7 @@ class ProductsController extends BaseController
     public function ListProducts()
     {
         try {
-            $products = Product::all();
+            $products = Product::where('user_id', auth()->user()->id)->get();
             return $this->handleResponseNoPagination('Products fetched successfully', $products, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);

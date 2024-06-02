@@ -19,7 +19,7 @@ return new class extends Migration
             $table->dateTime('document_date');
             $table->dateTime('due_date');
             $table->integer('price_htva');
-            $table->integer('price_vvac');
+            $table->integer('price_vvat');
             $table->integer('price_total');
             $table->string('status', 1)->default('N');
             $table->boolean('is_active')->default(true);

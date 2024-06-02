@@ -20,6 +20,9 @@ return new class extends Migration
             $table->integer('price_htva')->default(0);
             $table->integer('price_vvac')->default(0);
             $table->integer('price_total')->default(0);
+            $table->integer('margin')->default(0);
+            $table->integer('buying_price')->default(0);
+            $table->integer('selling_price')->default(0);
             $table->longText('comment')->nullable();
             $table->longText('description')->nullable();
             $table->string('status', 1)->default('N');

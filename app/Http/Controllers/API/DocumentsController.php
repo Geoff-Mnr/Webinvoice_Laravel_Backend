@@ -9,6 +9,7 @@ use App\Models\Product;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use carbon\carbon;
+use Illuminate\Support\Facades\Log;
 
 class DocumentsController extends BaseController
 {
@@ -28,7 +29,7 @@ class DocumentsController extends BaseController
                         ->orWhere('document_date', 'like', "%$search%")
                         ->orWhere('due_date', 'like', "%$search%")
                         ->orWhere('price_htva', 'like', "%$search%")
-                        ->orWhere('price_vvac', 'like', "%$search%")
+                        ->orWhere('price_vvat', 'like', "%$search%")
                         ->orWhere('price_total', 'like', "%$search%")
                         ->orWhere('status', 'like', "%$search%")
                         ->orWhereHas('documenttype', function($query) use ($search) {
@@ -51,7 +52,7 @@ class DocumentsController extends BaseController
                     'document_date' => Carbon::parse($document->document_date)->format('d/m/Y'),
                     'due_date' => Carbon::parse($document->due_date)->format('d/m/Y'),
                     'price_htva' => $document->price_htva,
-                    'price_vvac' => $document->price_vvac,
+                    'price_vvat' => $document->price_vvat,
                     'price_total' => $document->price_total,
                     'status' => $document->status,
                     'created_by' => $document->created_by,
@@ -79,23 +80,34 @@ class DocumentsController extends BaseController
                 'due_date' => 'required',
                 'document_date' => 'required',
                 'price_htva' => 'required',
-                'price_vvac' => 'required',
+                'price_vvat' => 'required',
             ]);
             $request['user_id'] = auth()->user()->id;
             $request['reference_number'] = $this->generateReferenceNumber($request['documenttype_id']);
+            $request['created_by'] = auth()->user()->id;
             $documentData = $request->except('product_id');
-            $vat_rate = $request['price_vvac'];
-            $vat_amount = $request['price_htva'] * $vat_rate / 100;
-
-            $documentData['price_total'] = $request['price_htva'] + $vat_amount;
             $document = Document::create($documentData);
 
             $notFoundProducts = [];
             foreach ($request->product_id as $productId) {
-                $product = Product::find($productId); // Change this line
-                if ($product) {
-                    $product->documents()->attach($document->id);
-                } else {
+                $product = Product::find($productId); 
+                Log::info("Product ID: $productId");
+                if ($product && $product->id) {
+                    $document->products()->attach($product->id, [
+                        'selling_price' => $product->selling_price ?? 0,
+                        'quantity' => $product->quantity ?? 0,
+                        'price_htva' => $product->price_htva ?? 0,
+                        'discount' => $product->discount ?? 0,
+                        'margin' => $product->margin ?? 0,
+                        'comment' => $product->comment,
+                        'description' => $product->description,
+                        'status' => 'N',
+                        'is_active' => true,
+                        'created_by' => auth()->user()->id,
+                        'updated_by' => null,
+                    ]);
+                }
+                else {
                     $notFoundProducts[] = $productId;
                 }
             }
@@ -136,17 +148,11 @@ class DocumentsController extends BaseController
                 'due_date' => 'required',
                 'document_date' => 'required',
                 'price_htva' => 'required',
-                'price_vvac' => 'required',
+                'price_vvat' => 'required',
             ]);
 
             $document = Document::findOrfail($id);
             $documentData = $request->except('product_id');
-
-            $vat_rate = $request['price_vvac'];
-            $vat_amount = $request['price_htva'] * $vat_rate / 100;
-            $documentData['price_total'] = $request['price_htva'] + $vat_amount;
-
-
             $document->update($documentData);
             $document->products()->detach();
             $notFoundProducts = [];
@@ -186,26 +192,16 @@ class DocumentsController extends BaseController
      * Generate a reference number for a document
      */
     
-     private function generateReferenceNumber($documenttype_id){
-        $prefix = 'DOCU-';
-    
-        if($documenttype_id == 1) { // Assuming 1 is the id for invoices
-            $prefix = 'FACT-';
+    private function generateReferenceNumber($documenttype_id){
+        $prefix = $documenttype_id == 1 ? 'FACT-' : 'DOCU-';
+     $lastDocument = Document::where('reference_number', 'like', $prefix . '%')
+                        ->orderBy('reference_number', 'desc')
+                        ->first();
+        if ($lastDocument) {
+            $lastNumber = intval(str_replace($prefix, '', $lastDocument->reference_number));
+        } else {
+            $lastNumber = 0;
         }
-        
-        $documents = Document::where('user_id', auth()->user()->id)
-                            ->where('reference_number', 'like', $prefix . '%')
-                            ->get();
-    
-        $lastNumber = 0;
-        foreach ($documents as $document) {
-            $number = intval(str_replace($prefix, '', $document->reference_number));
-            if ($number > $lastNumber) {
-                $lastNumber = $number;
-            }
-        }
-    
         return $prefix . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
     }
 }
-
