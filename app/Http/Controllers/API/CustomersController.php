@@ -8,15 +8,16 @@ use App\Models\Product;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use App\Http\Resources\CustomerResource;
 
 class CustomersController extends BaseController
 {
     
 
-    public function index(Request $request)
+    public function index(Request $request, $paginate=10)
     {
         $search = $request->q;
-        $perPage = $request->input('perPage', 10);
+        
 
         try {
             $query = Customer::where('user_id', auth()->user()->id)
@@ -25,32 +26,10 @@ class CustomersController extends BaseController
                         ->orWhere('email', 'like', '%' . $search . '%');
                 });
 
-            $customers = $query->paginate($perPage)->withQueryString();
-            $customers->getCollection()->transform(function ($customer) {
-                return [
-                    'id' => $customer->id,
-                    'company_name' => $customer->company_name,
-                    'email' => $customer->email,
-                    'phone_number' => $customer->phone_number,
-                    'billing_address' => $customer->billing_address,
-                    'billing_city' => $customer->billing_city,
-                    'billing_state' => $customer->billing_state,
-                    'billing_zip_code' => $customer->billing_zip_code,
-                    'billing_country' => $customer->billing_country,
-                    'website' => $customer->website,
-                    'vat_number' => $customer->vat_number,
-                    'status' => $customer->status,
-                    'is_active' => $customer->is_active,
-                    'created_by' => $customer->created_by,
-                    'updated_by' => $customer->updated_by,
-                    'created_at' => $customer->created_at,
-                    'updated_at' => $customer->updated_at,
-                ];
-            });
-
-            return $this->handleResponse('Customers fetched successfully', $customers);
+            $customers = $query->paginate($paginate);
+            return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 500);
         }
     }
 
@@ -143,9 +122,9 @@ class CustomersController extends BaseController
     {
         try {
             $customers = Customer::where('user_id', auth()->user()->id)->get();
-            return $this->handleResponseNoPagination('Customers fetched successfully', $customers, 200);
+            return $this->handleResponseNoPagination(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 500);
         }
     }
 }
