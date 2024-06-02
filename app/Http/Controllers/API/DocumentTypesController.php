@@ -20,7 +20,6 @@ class DocumentTypesController extends BaseController
             ->paginate($paginate);
             return $this->handleResponse(DocumentTypeResource::collection($documenttypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
-            event(new LogEvent(Auth::user()->id, 'Error retrieving document types ' . json_encode($documenttypes)));
             return $this->handleError($e->getMessage(), 500);
         }
     }
@@ -92,7 +91,7 @@ class DocumentTypesController extends BaseController
     {
         try {
             $documentTypes = Documenttype::where('is_active', 'A')->get();
-            return $this->handleResponseNoPagination('Document types fetched successfully', $documentTypes, 200);
+            return $this->handleResponseNoPagination(DocumentTypeResource::collection($documentTypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

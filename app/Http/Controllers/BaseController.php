@@ -77,7 +77,7 @@ class BaseController extends Controller
      * @param int $code
      * @return \Illuminate\Http\JsonResponse
      */
-    public function handleResponseNoPagination($message, $data, $code = 200)
+    public function handleResponseNoPagination($data, $message, $code = 200)
     {
         return response()->json([
             'data' => $data,
