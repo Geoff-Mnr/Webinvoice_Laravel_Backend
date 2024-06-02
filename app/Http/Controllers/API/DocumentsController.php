@@ -10,20 +10,23 @@ use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use carbon\carbon;
 use Illuminate\Support\Facades\Log;
+use App\Http\Resources\DocumentResource;
 
 class DocumentsController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, $paginate=10)
     {
         $search = $request->q;
-        $perPage = $request->input('perPage', 10);
+        $customer_id = $request->customer_id;
+        $documenttype_id = $request->documenttype_id;
+        $product_id = $request->product_id;
 
         try {
             $query = Document::where('user_id', auth()->user()->id)
-                ->with ('documenttype')
+                ->with ([ 'customer', 'documenttype', 'products' ])
                 ->where(function($query) use ($search) {
                     $query->where('reference_number', 'like', "%$search%")
                         ->orWhere('document_date', 'like', "%$search%")
@@ -38,34 +41,13 @@ class DocumentsController extends BaseController
                 });
             });
 
-            $documents = $query->paginate($perPage)->withQueryString();
-            $documents->getCollection()->transform(function ($document) {
-                return [
-                    'id' => $document->id,
-                    'customer_id' => $document->customer_id,
-                    'customer' => $document->customer->company_name,
-                    'product_id' => $document->product_id,
-                    'product' => $document->products,
-                    'documenttype_id' => $document->documenttype_id,
-                    'documenttype' => $document->documenttype->name,
-                    'reference_number' => $document->reference_number,
-                    'document_date' => Carbon::parse($document->document_date)->format('d/m/Y'),
-                    'due_date' => Carbon::parse($document->due_date)->format('d/m/Y'),
-                    'price_htva' => $document->price_htva,
-                    'price_vvat' => $document->price_vvat,
-                    'price_total' => $document->price_total,
-                    'status' => $document->status,
-                    'created_by' => $document->created_by,
-                    'updated_by' => $document->updated_by,
-                    'created_at' => Carbon::parse($document->created_at)->format('d/m/Y H:i:s'),
-                    'updated_at' => Carbon::parse($document->updated_at)->format('d/m/Y H:i:s'),
-                ];
-            });
-            return $this->handleResponse('Documents fetched successfully', $documents);
+            $documents = $query->paginate($paginate);
+            return $this->handleResponse(DocumentResource::collection($documents), 'Documents retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 500);
         }
     }
+            
 
     /**
      * Store a newly created resource in storage.
