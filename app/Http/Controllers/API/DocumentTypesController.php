@@ -17,7 +17,7 @@ class DocumentTypesController extends BaseController
         $perPage = $request->input('perPage', 10);
     
         try {
-            $query = Documenttype::where('user_id', auth()->user()->id)
+            $query = Documenttype::where('is_active', 'A')
                 ->where(function($query) use ($search) {
                     $query->where('reference', 'like', "%$search%")
                         ->orWhere('name', 'like', "%$search%");
@@ -109,7 +109,7 @@ class DocumentTypesController extends BaseController
     public function ListDocumentTypes()
     {
         try {
-            $documentTypes = Documenttype:: where('user_id', auth()->user()->id)->where('is_active', 'A')->get();
+            $documentTypes = Documenttype:: where('is_active', 'A')->get();
             return $this->handleResponseNoPagination('Document types fetched successfully', $documentTypes, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
