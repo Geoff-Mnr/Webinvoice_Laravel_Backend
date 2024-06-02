@@ -17,7 +17,7 @@ class Product extends Model
         'name',
         'brand',
         'ean_code',
-        'stock',
+        'quantity',
         'buying_price',
         'selling_price',
         'margin', 

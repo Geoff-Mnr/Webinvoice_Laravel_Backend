@@ -17,7 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('brand');
             $table->string('ean_code')->unique();
-            $table->string('stock')->default(0);
+            $table->string('quantity')->default(0);
             $table->string('buying_price');
             $table->string('selling_price');
             $table->string('discount')->default(0);

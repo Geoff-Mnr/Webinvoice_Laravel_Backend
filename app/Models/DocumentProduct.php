@@ -24,6 +24,9 @@ class DocumentProduct extends Model
         'margin',
         'comment',
         'description',
+        'status',
+        'created_by',
+        'updated_by',
     ];
 
     public function document()

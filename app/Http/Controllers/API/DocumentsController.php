@@ -45,7 +45,7 @@ class DocumentsController extends BaseController
                     'customer_id' => $document->customer_id,
                     'customer' => $document->customer->company_name,
                     'product_id' => $document->product_id,
-                    'product' => $document->products->pluck('name'),
+                    'product' => $document->products,
                     'documenttype_id' => $document->documenttype_id,
                     'documenttype' => $document->documenttype->name,
                     'reference_number' => $document->reference_number,
@@ -95,8 +95,11 @@ class DocumentsController extends BaseController
                 if ($product && $product->id) {
                     $document->products()->attach($product->id, [
                         'selling_price' => $product->selling_price ?? 0,
+                        'buying_price' => $product->buying_price ?? 0,
                         'quantity' => $product->quantity ?? 0,
                         'price_htva' => $product->price_htva ?? 0,
+                        'price_vvat' => $product->price_vvat ?? 0,
+                        'price_total' => $product->price_total ?? 0,
                         'discount' => $product->discount ?? 0,
                         'margin' => $product->margin ?? 0,
                         'comment' => $product->comment,
@@ -105,6 +108,8 @@ class DocumentsController extends BaseController
                         'is_active' => true,
                         'created_by' => auth()->user()->id,
                         'updated_by' => null,
+                        'created_at' => Carbon::now(),
+                        'updated_at' => null,
                     ]);
                 }
                 else {

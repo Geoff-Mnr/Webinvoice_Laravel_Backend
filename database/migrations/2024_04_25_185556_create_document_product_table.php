@@ -18,7 +18,7 @@ return new class extends Migration
             $table->integer('quantity')->default(0);
             $table->integer('discount')->default(0);
             $table->integer('price_htva')->default(0);
-            $table->integer('price_vvac')->default(0);
+            $table->integer('price_vvat')->default(0);
             $table->integer('price_total')->default(0);
             $table->integer('margin')->default(0);
             $table->integer('buying_price')->default(0);
