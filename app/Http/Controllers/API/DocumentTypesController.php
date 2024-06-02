@@ -5,41 +5,23 @@ namespace App\Http\Controllers\API;
 use App\Models\Documenttype;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
+use App\Http\Resources\DocumentTypeResource;
 
 class DocumentTypesController extends BaseController
 {
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request)
+    public function index(Request $request, $paginate = 10)
     {
         $search = $request->q;
-        $perPage = $request->input('perPage', 10);
-    
         try {
-            $query = Documenttype::where('is_active', 'A')
-                ->where(function($query) use ($search) {
-                    $query->where('reference', 'like', "%$search%")
-                        ->orWhere('name', 'like', "%$search%");
-                });
-    
-            $documenttypes = $query->paginate($perPage)->withQueryString();
-            $documenttypes->getCollection()->transform(function ($documenttype) {
-                return [
-                    'id' => $documenttype->id,
-                    'reference' => $documenttype->reference,
-                    'name' => $documenttype->name,
-                    'status' => $documenttype->status == 'A' ? 'Actif' : 'Inactif',
-                    'description' => $documenttype->description,
-                    'created_by' => $documenttype->created_by,
-                    'updated_by' => $documenttype->updated_by,
-                    'created_at' => $documenttype->created_at->format('Y-m-d'),
-                    'updated_at' => $documenttype->updated_at->format('Y-m-d'),
-                ];
-            });
-            return $this->handleResponse('Document types fetched successfully', $documenttypes);
+            $documenttypes = Documenttype::where('name', 'LIKE', "%$search%")
+            ->paginate($paginate);
+            return $this->handleResponse(DocumentTypeResource::collection($documenttypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            event(new LogEvent(Auth::user()->id, 'Error retrieving document types ' . json_encode($documenttypes)));
+            return $this->handleError($e->getMessage(), 500);
         }
     }
 
@@ -109,7 +91,7 @@ class DocumentTypesController extends BaseController
     public function ListDocumentTypes()
     {
         try {
-            $documentTypes = Documenttype:: where('is_active', 'A')->get();
+            $documentTypes = Documenttype::where('is_active', 'A')->get();
             return $this->handleResponseNoPagination('Document types fetched successfully', $documentTypes, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);

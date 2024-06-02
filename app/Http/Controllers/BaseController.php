@@ -15,19 +15,19 @@ class BaseController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function handleResponse($message, $data, $code=200)
+    public function handleResponse($data, $message, $code = 200)
         {
             return response()->json([
                 'message' => $message,
-                'data' => $data,
                 'code' => $code,
+                'data' => $data,
                 'meta' => [
-                'total' => $data->total(),
-                'per_page' => $data->perPage(),
-                'current_page' => $data->currentPage(),
-                'last_page' => $data->lastPage(),
-                'from' => $data->firstItem(),
-                'to' => $data->lastItem()
+                    'total' => $data->total(),
+                    'per_page' => $data->perPage(),
+                    'current_page' => $data->currentPage(),
+                    'last_page' => $data->lastPage(),
+                    'from' => $data->firstItem(),
+                    'to' => $data->lastItem()
                 ],
                 'links' => [
                     'prev' => $data->previousPageUrl(),
