@@ -27,7 +27,7 @@ class LoginController extends BaseController
                 $expirationHours= 12;
                 $expiresAt = now()->addHours($expirationHours)->toDateTimeString();
     
-                return $this->handleResponseNoPagination('Login successful', [
+                return $this->handleResponseNoPagination([
                     'user' => [
                         'username' => $user->username,
                         'email' => $user->email,
@@ -36,7 +36,7 @@ class LoginController extends BaseController
                     'access_token'=> $plainToken, 
                     'token_type' => 'Bearer', 
                     'expires_at' => $expiresAt
-                ], 200);
+                ], 'User logged in successfully', 200);
             } else {
                 return $this->handleError('Invalid email or password', 401);
             }

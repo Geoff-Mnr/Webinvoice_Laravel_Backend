@@ -38,9 +38,9 @@ class UsersController extends BaseController
                 ->with('roles')
                 ->get();
 
-            return $this->sendResponse($users, 'Users retrieved successfully.', 200);
+            return $this->handleResponse($users, 'Users retrieved successfully.', 200);
         } catch (\Exception $e) {
-            return $this->sendError('Server Error.', $e->getMessage(), 400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -170,7 +170,7 @@ class UsersController extends BaseController
                 'country' => $user->country,
                 'zip_code' => $user->zip_code,
             ];
-            return $this->handleResponseNoPagination('User profile retrieved successfully', $userData, 200);
+            return $this->handleResponseNoPagination($userData, 'User profile retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }

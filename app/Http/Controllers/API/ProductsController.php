@@ -13,9 +13,10 @@ class ProductsController extends BaseController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, $perPage = 10)
+    public function index(Request $request)
     {
         $search = $request->q;
+        $perPage = $request->input('per_page', 10);
 
         try {
             $query = Product::where('user_id', auth()->user()->id)
@@ -25,8 +26,8 @@ class ProductsController extends BaseController
                         ->orWhere('ean_code', 'like', "%$search%");
                 });
 
-            $products = $query->paginate($perPage);
-            return $this->handleResponse(ProductResource::collection($products), 'Products retrieved successfully', 200);
+            $products = $query->paginate($perPage)->withQueryString();
+            return $this->handleResponse('Products retrieved successfully',ProductResource::collection($products) ,200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }
@@ -117,7 +118,7 @@ class ProductsController extends BaseController
             $products = Product::where('user_id', auth()->user()->id)->get();
             return $this->handleResponseNoPagination(ProductResource::collection($products), 'Products retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 500);
         }
     }
 }

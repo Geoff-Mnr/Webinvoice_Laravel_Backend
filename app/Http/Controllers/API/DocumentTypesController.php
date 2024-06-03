@@ -18,7 +18,7 @@ class DocumentTypesController extends BaseController
         try {
             $documenttypes = Documenttype::where('name', 'LIKE', "%$search%")
             ->paginate($paginate);
-            return $this->handleResponse(DocumentTypeResource::collection($documenttypes), 'Document types retrieved successfully', 200);
+            return $this->handleResponse( 'Document types retrieved successfully',DocumentTypeResource::collection($documenttypes), 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }

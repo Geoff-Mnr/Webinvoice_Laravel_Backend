@@ -42,7 +42,7 @@ class DocumentsController extends BaseController
             });
 
             $documents = $query->paginate($paginate);
-            return $this->handleResponse(DocumentResource::collection($documents), 'Documents retrieved successfully', 200);
+            return $this->handleResponse('Documents retrieved successfully',DocumentResource::collection($documents), 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }

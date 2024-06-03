@@ -5,6 +5,9 @@ namespace App\Http\Resources;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 use Carbon\Carbon;
+use App\Http\Resources\CustomerResource;
+use App\Http\Resources\ProductResource;
+use App\Http\Resources\DocumentTypeResource;
 
 class DocumentResource extends JsonResource
 {
@@ -17,6 +20,12 @@ class DocumentResource extends JsonResource
     {
         return [
             'id' => $this->id,
+            'customer_id' => $this->customer_id,
+            'cutomer'=> CustomerResource::make($this->customer),
+            'documenttype_id' => $this->documenttype_id,
+            'documenttype'=> DocumentTypeResource::make($this->documenttype),
+            'product_id' => $this->product_id,
+            'product'=> ProductResource::make($this->product),
             'reference_number' => $this->reference_number,
             'document_date' => Carbon::parse($this->document_date)->format('d/m/Y'),
             'due_date' => Carbon::parse($this->due_date)->format('d/m/Y'),
