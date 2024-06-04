@@ -12,13 +12,15 @@ class DocumentTypesController extends BaseController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, $paginate = 10)
+    public function index(Request $request)
     {
         $search = $request->q;
+        $perPage = $request->input('per_page', 10);
+
         try {
-            $documenttypes = Documenttype::where('name', 'LIKE', "%$search%")
-            ->paginate($paginate);
-            return $this->handleResponse( 'Document types retrieved successfully',DocumentTypeResource::collection($documenttypes), 200);
+            $documenttypes = Documenttype::where('name', 'LIKE', "%$search%");
+            $documenttypes = $documenttypes->paginate($perPage)->withQueryString();
+            return $this->handleResponse(DocumentTypeResource::collection($documenttypes),'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }

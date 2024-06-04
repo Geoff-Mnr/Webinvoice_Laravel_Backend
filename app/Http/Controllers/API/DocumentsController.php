@@ -17,12 +17,13 @@ class DocumentsController extends BaseController
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, $paginate=10)
+    public function index(Request $request)
     {
         $search = $request->q;
         $customer_id = $request->customer_id;
         $documenttype_id = $request->documenttype_id;
         $product_id = $request->product_id;
+        $perPage = $request->input('per_page', 10);
 
         try {
             $query = Document::where('user_id', auth()->user()->id)
@@ -41,8 +42,8 @@ class DocumentsController extends BaseController
                 });
             });
 
-            $documents = $query->paginate($paginate);
-            return $this->handleResponse('Documents retrieved successfully',DocumentResource::collection($documents), 200);
+            $documents = $query->paginate($perPage)->withQueryString();
+            return $this->handleResponse(DocumentResource::collection($documents),'Documents retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }

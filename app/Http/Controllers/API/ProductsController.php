@@ -27,7 +27,7 @@ class ProductsController extends BaseController
                 });
 
             $products = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse('Products retrieved successfully',ProductResource::collection($products) ,200);
+            return $this->handleResponse(ProductResource::collection($products), 'Products retrieved successfully',200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }

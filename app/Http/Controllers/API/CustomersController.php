@@ -14,20 +14,19 @@ class CustomersController extends BaseController
 {
     
 
-    public function index(Request $request, $paginate=10)
+    public function index(Request $request)
     {
         $search = $request->q;
+        $perPage = $request->input('per_page', 10);
         
-
         try {
-            $query = Customer::where('user_id', auth()->user()->id)
-                ->when($search, function ($query) use ($search) {
-                    return $query->where('company_name', 'like', '%' . $search . '%')
-                        ->orWhere('email', 'like', '%' . $search . '%');
-                });
+            $customers = Customer::where('user_id', auth()->user()->id)
+                ->where('company_name', 'LIKE', "%$search%")
+                ->orWhere('email', 'LIKE', "%$search%");
 
-            $customers = $query->paginate($paginate);
-            return $this->handleResponse('Customers retrieved successfully',CustomerResource::collection($customers),  200);
+            
+            $customers = $customers->paginate($perPage)->withQueryString();
+            return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }
