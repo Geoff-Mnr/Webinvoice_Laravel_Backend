@@ -7,7 +7,7 @@ use App\Http\Controllers\InvoiceController;
 
 Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login']);
 Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
-Route::get('/invoice', [\App\Http\Controllers\InvoiceController::class, 'generateInvoice']);
+Route::get('/invoices/{documentId}', [\App\Http\Controllers\InvoiceController::class, 'generateInvoice']);
 
 Route ::middleware('auth:sanctum')->group(function () {
     Route::apiResources([

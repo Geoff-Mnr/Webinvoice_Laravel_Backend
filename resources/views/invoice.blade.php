@@ -25,12 +25,12 @@
             <h1>Facture</h1>
         </div>
         <div class="details">
-            <p><strong>Client :</strong> {{$name}}</p>
-            <p><strong>Produit :</strong> {{$date}}</p>
-            <p><strong>Type de document :</strong> {{$invoice_number}}</p>
-        </div>
-        <div class="footer">
-            <p>Merci pour votre achat !</p>
+            <p><strong>Date :</strong> {{$documenttype -> name }}</p>
+            <p><strong>Numéro de facture :</strong> {{$document->reference_number}}</p>
+            <p><strong>Client :</strong> {{$customer->company_name}}</p>
+            @foreach($products as $product)
+            <p><strong>Produit :</strong> {{$product->name}}</p>
+            @endforeach
         </div>
     </div>
 </body>

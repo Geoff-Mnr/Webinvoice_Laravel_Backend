@@ -11,15 +11,19 @@ use App\Models\Documenttype;
 
 class InvoiceController extends Controller
 {
-    public function generateInvoice(Request $request)
+    public function generateInvoice($documentId)
     {
+        $document = Document::with(['customer', 'products', 'documenttype'])->findOrFail($documentId);
         $data = [
-            'name' => 'John Doe',
-            'date' => '2021-09-01',
-            'invoice_number' => 'INV-0001',
-        ];
+        'document' => $document,
+        'customer' => $document->customer,
+        'products' => $document->products,
+        'documenttype' => $document->documenttype,
+        'reference_number' => $document->reference_number,
+        'name' => $document->customer->company_name, 
+    ];
 
-        $pdf = PDF::loadView('invoice', $data);
-        return $pdf->download('invoice.pdf');
+    $pdf = PDF::loadView('invoice', $data);
+    return $pdf->download('invoice.pdf');
     }
 }
