@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Role;
 use Intervention\Image\Facades\Image;
 use Illuminate\Support\Facades\Storage;
+use App\Http\Resources\UserResource;
 
 
 
@@ -42,7 +43,7 @@ class UsersController extends BaseController
                 $query->where('role_id', $role_id);
             }
             $users = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse($users, 'Users retrieved successfully', 200);
+            return $this->handleResponse(UserResource::collection($users), 'Users retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }
