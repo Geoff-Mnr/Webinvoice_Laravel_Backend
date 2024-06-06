@@ -19,28 +19,32 @@ class UsersController extends BaseController
     public function index(Request $request)
     {
         $search = $request->q;
+        $role_id = $request->role_id;
         $perPage = $request->query('perPage', 10);
         try {
-            $users = User::where('username', 'LIKE', "%$search%")
-                ->orWhere('first_name', 'LIKE', "%$search%")
-                ->orWhere('last_name', 'LIKE', "%$search%")
-                ->orWhere('email', 'LIKE', "%$search%")
-                ->orWhere('phone_number', 'LIKE', "%$search%")
-                ->orWhere('address', 'LIKE', "%$search%")
-                ->orWhere('city', 'LIKE', "%$search%")
-                ->orWhere('Countries', 'LIKE', "%$search%")
-                ->orWhere(function ($query) use ($search) {
-                    $query->whereHas('roles', function ($query) use ($search) {
-                        $query->where('name', 'LIKE', "%$search%");
-                    });
-                })
-                ->paginate($perPage)->withQueryString()
-                ->with('roles')
-                ->get();
-
-            return $this->handleResponse($users, 'Users retrieved successfully.', 200);
+            $query = User::with('role')
+                ->where(function ($query) use ($search) {
+                    $query->where('username', 'like', "%$search%")
+                        ->orWhere('first_name', 'like', "%$search%")
+                        ->orWhere('last_name', 'like', "%$search%")
+                        ->orWhere('email', 'like', "%$search%")
+                        ->orWhere('phone_number', 'like', "%$search%")
+                        ->orWhere('address', 'like', "%$search%")
+                        ->orWhere('city', 'like', "%$search%")
+                        ->orWhere('country', 'like', "%$search%")
+                        ->orWhere('zip_code', 'like', "%$search%")
+                        ->orWhereHas('role', function ($query) use ($search) {
+                            $query->where('name', 'like', "%$search%")
+                                ->orWhere('description', 'like', "%$search%");
+                        });
+                });
+            if ($role_id) {
+                $query->where('role_id', $role_id);
+            }
+            $users = $query->paginate($perPage)->withQueryString();
+            return $this->handleResponse($users, 'Users retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(), 400);
+            return $this->handleError($e->getMessage(), 500);
         }
     }
 
