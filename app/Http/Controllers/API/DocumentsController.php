@@ -99,11 +99,14 @@ class DocumentsController extends BaseController
                     $notFoundProducts[] = $productId;
                 }
             }
+            $document->price_htva = $document->products->sum(function($product) {
+                return $product->pivot->selling_price * $product->pivot->quantity;
+            });
+            $document->save();
 
             if (!empty($notFoundProducts)) {
                 return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
             }
-
             return $this->handleResponseNoPagination('Document created successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
@@ -183,6 +186,7 @@ class DocumentsController extends BaseController
     private function generateReferenceNumber($documenttype_id){
         $prefix = $documenttype_id == 1 ? 'FACT-' : 'DOCU-';
      $lastDocument = Document::where('reference_number', 'like', $prefix . '%')
+                        ->where('user_id', auth()->user()->id)
                         ->orderBy('reference_number', 'desc')
                         ->first();
         if ($lastDocument) {

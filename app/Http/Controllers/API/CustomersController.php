@@ -21,8 +21,20 @@ class CustomersController extends BaseController
         
         try {
             $customers = Customer::where('user_id', auth()->user()->id)
-                ->where('company_name', 'LIKE', "%$search%")
-                ->orWhere('email', 'LIKE', "%$search%");
+                ->when($search, function($query) use ($search) {
+                    $query->where('company_name', 'like', "%$search%")
+                        ->orWhere('email', 'like', "%$search%")
+                        ->orWhere('phone_number', 'like', "%$search%")
+                        ->orWhere('billing_address', 'like', "%$search%")
+                        ->orWhere('billing_city', 'like', "%$search%")
+                        ->orWhere('billing_state', 'like', "%$search%")
+                        ->orWhere('billing_zip_code', 'like', "%$search%")
+                        ->orWhere('billing_country', 'like', "%$search%")
+                        ->orWhere('website', 'like', "%$search%")
+                        ->orWhere('vat_number', 'like', "%$search%")
+                        ->orWhere('status', 'like', "%$search%")
+                        ->orWhere('is_active', 'like', "%$search%");
+                });
 
             
             $customers = $customers->paginate($perPage)->withQueryString();
