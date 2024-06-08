@@ -160,22 +160,8 @@ class UsersController extends BaseController
     public function getUserProfile (Request $request)
     {
         try {
-            $user = $request->user();
-            $userData = [
-                'id' => $user->id,
-                'username' => $user->username,
-                'email' => $user->email,
-                'role' => $user->roles->name ?? 'User',
-                'profile_picture' => $user->profile_picture,
-                'first_name' => $user->first_name,
-                'last_name' => $user->last_name,
-                'phone_number' => $user->phone_number,
-                'address' => $user->address,
-                'city' => $user->city,
-                'country' => $user->country,
-                'zip_code' => $user->zip_code,
-            ];
-            return $this->handleResponseNoPagination($userData, 'User profile retrieved successfully', 200);
+            $user = $request->user()->load('role');
+            return $this->handleResponseNoPagination(UserResource::make($user), 'User profile retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }

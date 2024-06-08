@@ -5,6 +5,7 @@ namespace App\Http\Controllers\API;
 use App\Http\Controllers\BaseController;
 use App\Models\Role;
 use Illuminate\Http\Request;
+use App\Http\Resources\RoleResource;
 
 
 class RolesController extends BaseController
@@ -16,7 +17,7 @@ class RolesController extends BaseController
     {
         try {
             $roles = Role::all();
-            return $this->handleResponseNoPagination('Roles fetched successfully', $roles, 200);
+            return $this->handleResponseNoPagination(RoleResource::collection($roles),  200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
         }

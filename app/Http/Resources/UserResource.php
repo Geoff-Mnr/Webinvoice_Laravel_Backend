@@ -31,7 +31,7 @@ class UserResource extends JsonResource
             'zip_code' => $this->zip_code,
             'profile_picture' => $this->profile_picture,
             'status' => $this->status,
-            'is_active' => $this->is_active,
+            'is_active' => $this->is_active == 1 ? 'Actif' : 'Banni',
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
