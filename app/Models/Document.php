@@ -23,6 +23,7 @@ class Document extends Model
         'due_date',
         'price_htva',
         'price_vvat',
+        'price_tvac',
         'price_total',
         'status',
         'is_active',

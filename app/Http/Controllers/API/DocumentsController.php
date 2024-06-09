@@ -99,10 +99,6 @@ class DocumentsController extends BaseController
                     $notFoundProducts[] = $productId;
                 }
             }
-            $document->price_htva = $document->products->sum(function($product) {
-                return $product->pivot->selling_price * $product->pivot->quantity;
-            });
-            $document->save();
 
             if (!empty($notFoundProducts)) {
                 return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
