@@ -56,34 +56,37 @@ class DocumentsController extends BaseController
     public function store(Request $request)
     {
         try {
+            // Validation des champs requis
             $request->validate([
                 'documenttype_id' => 'required',
                 'customer_id' => 'required',
-                'product_id' => 'required|array', 
+                'selectedProducts' => 'required|array', // Validation du tableau de produits sélectionnés
                 'due_date' => 'required',
                 'document_date' => 'required',
                 'price_htva' => 'required',
                 'price_vvat' => 'required',
             ]);
+
+            // Ajout des informations de l'utilisateur et génération du numéro de référence
             $request['user_id'] = auth()->user()->id;
             $request['reference_number'] = $this->generateReferenceNumber($request['documenttype_id']);
             $request['created_by'] = auth()->user()->id;
-            $documentData = $request->except('product_id');
+            $documentData = $request->except('selectedProducts');
+            
+            // Création du document
             $document = Document::create($documentData);
 
             $notFoundProducts = [];
-            foreach ($request->product_id as $productId) {
-                $product = Product::find($productId); 
-                Log::info("Product ID: $productId");
+            foreach ($request->selectedProducts as $selectedProduct) {
+                $product = Product::find($selectedProduct['product_id']); 
+                Log::info("Product ID: {$selectedProduct['product_id']}");
                 if ($product && $product->id) {
                     $document->products()->attach($product->id, [
                         'selling_price' => $product->selling_price ?? 0,
                         'buying_price' => $product->buying_price ?? 0,
-                        'quantity' => $product->quantity ?? 0,
-                        'price_htva' => $product->price_htva ?? 0,
-                        'price_vvat' => $product->price_vvat ?? 0,
-                        'price_total' => $product->price_total ?? 0,
-                        'discount' => $product->discount ?? 0,
+                        'quantity' => $selectedProduct['quantity'] ?? 0,
+                        'price_total' => $selectedProduct['price_total'] ?? 0,
+                        'discount' => $selectedProduct['discount'] ?? 0,
                         'margin' => $product->margin ?? 0,
                         'comment' => $product->comment,
                         'description' => $product->description,
@@ -91,21 +94,22 @@ class DocumentsController extends BaseController
                         'is_active' => true,
                         'created_by' => auth()->user()->id,
                         'updated_by' => null,
-                        'created_at' => Carbon::now(),
+                        'created_at' => now(),
                         'updated_at' => null,
                     ]);
-                }
-                else {
-                    $notFoundProducts[] = $productId;
+                } else {
+                    $notFoundProducts[] = $selectedProduct['product_id'];
                 }
             }
 
+            // Gestion des produits non trouvés
             if (!empty($notFoundProducts)) {
                 return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
             }
+            
             return $this->handleResponseNoPagination('Document created successfully', $document, 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -125,41 +129,57 @@ class DocumentsController extends BaseController
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $documentId)
     {
         try {
+            // Validation des champs requis
             $request->validate([
                 'documenttype_id' => 'required',
                 'customer_id' => 'required',
-                'product_id' => 'required|array', 
+                'selectedProducts' => 'required|array', // Validation du tableau de produits sélectionnés
                 'due_date' => 'required',
                 'document_date' => 'required',
                 'price_htva' => 'required',
                 'price_vvat' => 'required',
             ]);
 
-            $document = Document::findOrfail($id);
-            $documentData = $request->except('product_id');
-            $document->update($documentData);
-            $document->products()->detach();
-            $notFoundProducts = [];
-            foreach ($request->product_id as $productId) {
-                $product = Product::find($productId); // Change this line
-                if ($product) {
-                    $product->documents()->attach($document->id);
-                } else {
-                    $notFoundProducts[] = $productId;
-                }
+            // Récupération du document
+            $document = Document::findOrFail($documentId);
+            
+            // Mise à jour des informations du document
+            $document->update($request->except('selectedProducts'));
+
+            // Préparation des données pour sync
+            $productSyncData = [];
+            foreach ($request->selectedProducts as $selectedProduct) {
+                $productSyncData[$selectedProduct['product_id']] = [
+                    'selling_price' => $selectedProduct['selling_price'] ?? 0,
+                    'buying_price' => $selectedProduct['buying_price'] ?? 0,
+                    'quantity' => $selectedProduct['quantity'] ?? 0,
+                    'price_total' => $selectedProduct['price_total'] ?? 0,
+                    'discount' => $selectedProduct['discount'] ?? 0,
+                    'margin' => $selectedProduct['margin'] ?? 0,
+                    'comment' => $selectedProduct['comment'] ?? null,
+                    'description' => $selectedProduct['description'] ?? null,
+                    'status' => $selectedProduct['status'] ?? 'N',
+                    'is_active' => $selectedProduct['is_active'] ?? true,
+                    'created_by' => $product->pivot->created_by ?? auth()->user()->id,
+                    'updated_by' => auth()->user()->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
             }
 
-            if (!empty($notFoundProducts)) {
-                return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
-            }
+            // Synchronisation des produits dans la table pivot
+            $document->products()->sync($productSyncData);
+
             return $this->handleResponseNoPagination('Document updated successfully', $document, 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
+
+    
 
     /**
      * Remove the specified resource from storage.

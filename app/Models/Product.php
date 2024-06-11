@@ -21,7 +21,6 @@ class Product extends Model
         'buying_price',
         'selling_price',
         'margin', 
-        'discount',
         'description',
         'comment',
         'status',
@@ -33,7 +32,7 @@ class Product extends Model
     public function documents()
     {
         return $this->belongsToMany(Document::class, 'document_product', 'product_id', 'document_id')
-        ->withPivot('quantity', 'price_htva', 'price_vvat', 'price_total', 'discount', 'margin', 'comment', 'description', 'status', 'is_active', 'created_by', 'updated_by');
+        ->withPivot('quantity', 'price_htva', 'price_vvat', 'price_total', 'price_tvac', 'discount', 'margin', 'comment', 'description', 'status', 'is_active', 'created_by', 'updated_by');
     }
  
     public function user()

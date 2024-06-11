@@ -44,9 +44,7 @@ class ProductsController extends BaseController
                 'name' => 'required',
                 'brand' => 'required',
                 'ean_code' => 'required',
-                'quantity' => 'required',
                 'buying_price' => 'required',
-                'discount' => 'required',
                 'margin' => 'required',
             ]);
             $request['user_id'] = auth()->user()->id;  

@@ -49,7 +49,7 @@ class Document extends Model
     public function products() : BelongsToMany
     {
         return $this->belongsToMany(Product::class)
-        ->withPivot('selling_price', 'quantity', 'price_htva', 'discount', 'margin',  'comment', 'description');
+        ->withPivot('selling_price', 'quantity', 'price_total' ,'discount', 'margin',  'comment', 'description');
     }
 
 }

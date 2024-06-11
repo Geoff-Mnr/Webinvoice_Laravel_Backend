@@ -32,6 +32,7 @@ class DocumentResource extends JsonResource
             'price_htva' => $this->price_htva,
             'price_vvat' => $this->price_vvat,
             'price_total' => $this->price_total,
+            'price_tvac' => $this->price_tvac,
             'status' => $this->status,
             'is_active' => $this->is_active,
             'created_by' => $this->created_by,
