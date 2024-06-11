@@ -18,10 +18,25 @@ class DocumentResource extends JsonResource
      */
     public function toArray(Request $request)
     {
+        $status = $this->status;
+        switch ($status) {
+            case 'P':
+                $status = 'Payé';
+                break;
+            case 'E':
+                $status = 'En cours';
+                break;
+            case 'N':
+                $status = 'Impayé';
+                break;
+            default:
+                $status = 'Inconnu'; // Optionnel, pour gérer les cas inattendus
+        }
+       
         return [
             'id' => $this->id,
             'customer_id' => $this->customer_id,
-            'cutomer'=> CustomerResource::make($this->customer),
+            'customer'=> CustomerResource::make($this->customer),
             'documenttype_id' => $this->documenttype_id,
             'documenttype'=> DocumentTypeResource::make($this->documenttype),
             'product_id' => $this->product_id,
@@ -33,7 +48,7 @@ class DocumentResource extends JsonResource
             'price_vvat' => $this->price_vvat,
             'price_total' => $this->price_total,
             'price_tvac' => $this->price_tvac,
-            'status' => $this->status,
+            'status' => $status,
             'is_active' => $this->is_active,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,

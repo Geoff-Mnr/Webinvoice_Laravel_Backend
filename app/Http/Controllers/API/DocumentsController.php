@@ -6,6 +6,7 @@ namespace App\Http\Controllers\API;
 use App\Models\Document;
 use App\Models\Documenttype;
 use App\Models\Product;
+use App\Models\Customer;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use carbon\carbon;
@@ -67,6 +68,16 @@ class DocumentsController extends BaseController
                 'price_vvat' => 'required',
             ]);
 
+            $customer = Customer::find($request['customer_id']);
+            if ($customer->status == 'I') {
+                return $this->handleError('Ce client est inactif et ne peut pas être utilisé.', 400);
+            }
+
+            $documentType = DocumentType::find($request['documenttype_id']);
+            if ($documentType->status == 'I') {
+                return $this->handleError('Ce type de document est inactif et ne peut pas être utilisé.', 400);
+            }
+
             // Ajout des informations de l'utilisateur et génération du numéro de référence
             $request['user_id'] = auth()->user()->id;
             $request['reference_number'] = $this->generateReferenceNumber($request['documenttype_id']);
@@ -90,7 +101,7 @@ class DocumentsController extends BaseController
                         'margin' => $product->margin ?? 0,
                         'comment' => $product->comment,
                         'description' => $product->description,
-                        'status' => 'N',
+                        'status' => $selectedProduct['status'] ?? 'N',
                         'is_active' => true,
                         'created_by' => auth()->user()->id,
                         'updated_by' => null,
@@ -119,7 +130,7 @@ class DocumentsController extends BaseController
     public function show(Document $document)
     {
         try {
-            $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();
+            $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();   
             return $this->handleResponseNoPagination(200, 'Document retrieved successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(),400);
@@ -142,6 +153,16 @@ class DocumentsController extends BaseController
                 'price_htva' => 'required',
                 'price_vvat' => 'required',
             ]);
+
+            $customer = Customer::find($request['customer_id']);
+            if ($customer->status == 'I') {
+                return $this->handleError('Ce client est inactif et ne peut pas être utilisé.', 400);
+            }
+
+            $documentType = DocumentType::find($request['documenttype_id']);
+            if ($documentType->status == 'I') {
+                return $this->handleError('Ce type de document est inactif et ne peut pas être utilisé.', 400);
+            }
 
             // Récupération du document
             $document = Document::findOrFail($documentId);

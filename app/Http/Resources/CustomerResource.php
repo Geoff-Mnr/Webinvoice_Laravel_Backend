@@ -27,7 +27,7 @@ class CustomerResource extends JsonResource
             'billing_country' => $this->billing_country,
             'website' => $this->website,
             'vat_number' => $this->vat_number,
-            'status' => $this->status,
+            'status' => $this->status === 'A' ? 'Actif' : 'Inactif',
             'is_active' => $this->is_active,
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,

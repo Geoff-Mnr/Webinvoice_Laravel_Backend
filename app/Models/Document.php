@@ -52,4 +52,6 @@ class Document extends Model
         ->withPivot('selling_price', 'quantity', 'price_total' ,'discount', 'margin',  'comment', 'description');
     }
 
+   
+
 }

@@ -56,6 +56,7 @@ class CustomersController extends BaseController
                 'email' => 'required',
             ]);
             $request['user_id'] = $request->user()->id;
+            $request['status'] === 'Actif' ? 'A' : 'I';
             $customer = Customer::create($request->all());
             return $this->handleResponseNoPagination('Customer created successfully', $customer);
         } catch (\Exception $e) {
@@ -105,6 +106,7 @@ class CustomersController extends BaseController
     public function update(Request $request, Customer $customer)
     {
         try {
+            $request['is_active'] = $request['status'] === 'Actif' ? 'A' : 'I';
             $customer->update($request->all());
             return $this->handleResponseNoPagination('Customer updated successfully', $customer, 200);
         } catch (\Exception $e) {
