@@ -1,8 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Facture</title>
+
+    <title>{{$documenttype->name}} - {{$document->reference_number}}</title>
     <style>
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap');
+
         *,
 ::before,
 ::after {
@@ -44,6 +48,8 @@ body {
   /* 1 */
   line-height: inherit;
   /* 2 */
+
+  
 }
 
 
@@ -529,11 +535,11 @@ video {
 }
 
 .border-main{
-  border-color: #5c6ac4;
+  border-color: #2563eb;
 }
 
 .bg-main{
-  background-color: #5c6ac4;
+  background-color: #2563eb;
 }
 
 .bg-slate-100{
@@ -629,7 +635,7 @@ video {
 }
 
 .text-main{
-  color: #5c6ac4;
+  color: #2563eb;
 }
 
 .text-neutral-600{
@@ -667,15 +673,6 @@ img{
   }
 }
     </style>
-</head>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
-  <link rel="stylesheet" href="style.css" type="text/css" media="all" />
 </head>
 <body>
   <div>
@@ -765,8 +762,8 @@ img{
               <td class="border-b py-3 pl-2 text-right">{{$product->selling_price}}</td>
               <td class="border-b py-3 pl-2 text-center">{{$product->pivot->quantity}}</td>
               <td class="border-b py-3 pl-2 text-center">{{$product->pivot->discount}}%</td>
-              <td class="border-b py-3 pl-2 text-center">{{$document->price_vvat}} %</td>
-              <td class="border-b py-3 pl-2 text-right">{{$product->pivot->price_total}}</td>
+              <td class="border-b py-3 pl-2 text-center">{{$document->price_vvat}}%</td>
+              <td class="border-b py-3 pl-2 text-right">{{$product->pivot->price_total}}€</td>
             </tr>
             @endforeach
               <td colspan="7">
@@ -814,45 +811,26 @@ img{
       </div>
 
       <div class="px-14 text-sm text-neutral-700">
-        <p class="text-main font-bold">PAYMENT DETAILS</p>
-        <p>Banks of Banks</p>
-        <p>Bank/Sort Code: 1234567</p>
-        <p>Account Number: 123456678</p>
-        <p>Payment Reference: BRA-00335</p>
+        <p class="text-main font-bold">Détails du paiment</p>
+        <p>Le paiement doit être fait pour le :{{ \Carbon\Carbon::parse($document->due_date)->format('d/m/Y') }}</p>
+        <p>Sur le numéro de compte: {{implode('.', str_split($user->account_number, 4))}}</p>
+        <p>Référence du paiement: {{$document->reference_number}}</p>
       </div>
 
       <div class="px-14 py-10 text-sm text-neutral-700">
         <p class="text-main font-bold">Notes</p>
-        <p class="italic">Lorem ipsum is placeholder text commonly used in the graphic, print, and publishing industries
-          for previewing layouts and visual mockups.</p>
+        <p class="italic">Merci de bien vouloir régler la facture avant la date d'échéance mentionnée ci-dessus. En cas de retard de paiement, des frais supplémentaires peuvent être appliqués.</p>
         </dvi>
 
         <footer class="fixed bottom-0 left-0 bg-slate-100 w-full text-neutral-600 text-center text-xs py-3">
-          Supplier Company
+          {{$user->company_name}}
           <span class="text-slate-300 px-2">|</span>
-          info@company.com
+          {{$user->email}}
           <span class="text-slate-300 px-2">|</span>
-          +1-202-555-0106
+          {{ '+32'.ltrim($user->phone_number, '0') }}
         </footer>
       </div>
     </div>
 </body>
 
-</html>
-
-<body>
-    <div class="content">
-        <div class="header">
-            <h1>Facture</h1>
-        </div>
-        <div class="details">
-            <p><strong>Date :</strong> {{$documenttype -> name }}</p>
-            <p><strong>Numéro de facture :</strong> {{$document->reference_number}}</p>
-            <p><strong>Client :</strong> {{$customer->company_name}}</p>
-            @foreach($products as $product)
-            <p><strong>Produit :</strong> {{$product->name}}</p>
-            @endforeach
-        </div>
-    </div>
-</body>
 </html>

@@ -24,6 +24,7 @@ class User extends Authenticatable
         'username',
         'company_name',
         'vat_number',
+        'account_number',
         'first_name',
         'last_name',
         'email',
