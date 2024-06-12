@@ -13,9 +13,10 @@ class InvoiceController extends Controller
 {
     public function generateInvoice($documentId)
     {
-        $document = Document::with(['customer', 'products', 'documenttype'])->findOrFail($documentId);
+        $document = Document::with(['customer', 'products', 'documenttype', 'user'])->findOrFail($documentId);
         $data = [
         'document' => $document,
+        'user' => $document->user,
         'customer' => $document->customer,
         'products' => $document->products,
         'documenttype' => $document->documenttype,

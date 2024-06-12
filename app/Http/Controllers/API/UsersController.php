@@ -28,6 +28,7 @@ class UsersController extends BaseController
                     $query->where('username', 'like', "%$search%")
                         ->orWhere('first_name', 'like', "%$search%")
                         ->orWhere('last_name', 'like', "%$search%")
+                        ->orWhere('company_name', 'like', "%$search%")
                         ->orWhere('email', 'like', "%$search%")
                         ->orWhere('phone_number', 'like', "%$search%")
                         ->orWhere('address', 'like', "%$search%")

@@ -656,6 +656,11 @@ video {
   margin: 0;
 }
 
+img{
+  max-width: 100%;
+  height: 60px;
+}
+
 @media print {
   body {
     -webkit-print-color-adjust: exact;
@@ -681,7 +686,7 @@ video {
             <tr>
               <td class="w-full align-top">
                 <div>
-                  <img src="https://menkoff.com/assets/brand-sample.png" class="h-12" />
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('storage/img/wi_logo_light.png'))) }}" alt="logo"/>
                 </div>
               </td>
 
@@ -693,7 +698,7 @@ video {
                         <td class="border-r pr-4">
                           <div>
                             <p class="whitespace-nowrap text-slate-400 text-right">Date</p>
-                            <p class="whitespace-nowrap font-bold text-main text-right">{{$document -> document_date}}</p>
+                            <p class="whitespace-nowrap font-bold text-main text-right">{{ \Carbon\Carbon::parse($document->document_date)->format('d/m/Y') }}</p>
                           </div>
                         </td>
                         <td class="pl-4">
@@ -718,18 +723,19 @@ video {
             <tr>
               <td class="w-1/2 align-top">
                 <div class="text-sm text-neutral-600">
-                  <p class="font-bold">Supplier Company INC</p>
-                  <p>Number: 23456789</p>
-                  <p>VAT: 23456789</p>
-                  <p>6622 Abshire Mills</p>
-                  <p>Port Orlofurt, 05820</p>
-                  <p>United States</p>
+                  <p class="font-bold">{{$user->company_name}}</p>
+                  <p>TVA: {{$user->vat_number}}</p>
+                  <p>Email: {{$user->email}}</p>
+                  <p>{{$user->address}}</p>
+                  <p>{{$user->zip_code}} {{$user->city}}</p>
+                  <p>{{$user->country}}</p>
                 </div>
               </td>
               <td class="w-1/2 align-top text-right">
                 <div class="text-sm text-neutral-600">
                   <p class="font-bold">{{$customer->company_name}}</p>
                   <p>TVA: {{$customer->vat_number}}</p>
+                  <p>Email: {{$customer->email}}</p>
                   <p>{{$customer->billing_address}}</p>
                   <p>{{$customer->billing_zip_code}} {{$customer->billing_state}}</p>
                   <p>{{$customer->billing_country}}</p>
