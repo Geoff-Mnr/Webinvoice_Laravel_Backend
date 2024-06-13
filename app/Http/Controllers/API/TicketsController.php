@@ -30,7 +30,6 @@ class TicketsController extends BaseController
         try {
         $request->validate([
             'title' => 'required',
-            'description' => 'required',
         ]);  
         $input = $request->all();
         $input['created_by'] = Auth::user()->id;
@@ -64,37 +63,64 @@ class TicketsController extends BaseController
     /**
      * Update the specified resource in storage.
      */
+    /**
+     * Update the specified resource in storage.
+     */
     public function update(Request $request, Ticket $ticket)
-    {
-        try {
-            
-            // Mise à jour des champs du ticket
-            $input = $request->only(['title', 'description']);
-            $input['updated_by'] = Auth::user()->id;
-            
-            if (!empty($input['title']) || !empty($input['description'])) {
-                $ticket->update($input);
-            }
+{
+    try {
+        // Valider les données entrantes
+        $request->validate([
+            'title' => 'sometimes|string|max:255',
+            'description' => 'sometimes|string',
+            'message' => 'nullable|string|max:500',
+            'response' => 'nullable|string|max:500',
+            'status' => 'nullable|string|in:N,O,C', // Assuming N, O, C are valid status codes
+        ]);
 
-            // Récupérer les valeurs actuelles de la table pivot pour l'utilisateur
-            $currentPivot = $ticket->users()->where('user_id', auth()->user()->id)->first()->pivot;
+        // Récupérer l'utilisateur authentifié
+        $user = Auth::user();
 
-            // Mise à jour des champs de la table pivot
-            $ticket->users()->updateExistingPivot(auth()->user()->id, [
-                'message' => $request->message ?? $currentPivot->message,
-                'response' => $request->response ?? $currentPivot->response,
-                'status' => $request->status ?? $currentPivot->status,
-                'updated_by' => auth()->user()->id
-            ]);
+        // Mise à jour des champs du ticket
+        $input = $request->only(['title', 'description']);
+        $input['updated_by'] = $user->id;
 
-            // Charger les utilisateurs associés au ticket avant de renvoyer la réponse
-            return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Ticket updated successfully', 200);
-        } catch (ValidationException $e) {
-            return $this->handleError($e->errors(), 422); // Unprocessable Entity for validation errors
-        } catch (\Exception $e) {
-            return $this->handleError('An error occurred while updating the ticket', 500); // Internal Server Error
+        if (!empty($input['title']) || !empty($input['description'])) {
+            $ticket->update($input);
         }
+
+        // Vérifier si l'utilisateur est déjà associé au ticket
+        $currentPivot = $ticket->users()->where('user_id', $user->id)->first();
+
+        if ($currentPivot) {
+            // Mise à jour des champs de la table pivot pour l'utilisateur authentifié
+            $ticket->users()->updateExistingPivot($user->id, [
+                'message' => $request->input('message', $currentPivot->pivot->message),
+                'response' => $request->input('response', $currentPivot->pivot->response),
+                'status' => $request->input('status', $currentPivot->pivot->status),
+                'updated_by' => $user->id
+            ]);
+        } else {
+            // Associer l'utilisateur au ticket si non associé
+            $ticket->users()->attach($user->id, [
+                'message' => $request->input('message', 'No message'),
+                'response' => $request->input('response', 'No response'),
+                'status' => $request->input('status', 'N'),
+                'created_by' => $user->id,
+                'updated_by' => $user->id,
+            ]);
+        }
+
+        // Charger les utilisateurs associés au ticket avant de renvoyer la réponse
+        return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Ticket updated successfully', 200);
+    } catch (ValidationException $e) {
+        return $this->handleError($e->errors(), 422); // Unprocessable Entity for validation errors
+    } catch (\Exception $e) {
+        return $this->handleError('An error occurred while updating the ticket', 500); // Internal Server Error
     }
+}
+
+
 
     /**
      * Remove the specified resource from storage.

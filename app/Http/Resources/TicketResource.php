@@ -32,8 +32,9 @@ class TicketResource extends JsonResource
             return $this->users->map(function ($user) {
                 return [
                     'id' => $user->id,
-                    'name' => $user->username,
+                    'username' => $user->username,
                     'email' => $user->email,
+                    'profile_picture' => $user->profile_picture,
                     'pivot' => [
                         'message' => $user->pivot->message,
                         'response' => $user->pivot->response,
