@@ -145,4 +145,31 @@ class TicketsController extends BaseController
             return $this->handleError($e->getMessage(), 400);
         }
     }
+
+    public function addMessage(Request $request, Ticket $ticket)
+{
+    try {
+        // Valider les données entrantes
+        $request->validate([
+            'message' => 'required|string|max:500',
+        ]);
+
+        // Récupérer l'utilisateur authentifié
+        $user = Auth::user();
+
+        // Ajouter un message à la table pivot pour l'utilisateur authentifié
+        $ticket->users()->attach($user->id, [
+            'message' => $request->input('message'),
+            'response' => $request->input('response', 'No response'),
+            'status' => $request->input('status', 'N'),
+            'created_by' => $user->id,
+            'updated_by' => $user->id,
+        ]);
+
+        // Charger les utilisateurs associés au ticket avant de renvoyer la réponse
+        return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Message added to ticket successfully', 200);
+    } catch (\Exception $e) {
+        return $this->handleError('An error occurred while adding the message to the ticket', 500); // Internal Server Error
+    }
+}
 }

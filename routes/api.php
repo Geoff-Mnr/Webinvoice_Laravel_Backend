@@ -24,7 +24,7 @@ Route ::middleware('auth:sanctum')->group(function () {
     Route::get('/list-products', [\App\Http\Controllers\API\ProductsController::class, 'ListProducts']);
     Route::get('/profile-user', [\App\Http\Controllers\API\UsersController::class, 'getUserProfile']);
     Route::get('/list-tickets-user', [\App\Http\Controllers\API\TicketsController::class, 'getTicketsByUser']);
-    
+    Route::post('/tickets/{ticket}/messages', [\App\Http\Controllers\API\TicketsController::class, 'addMessage']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
