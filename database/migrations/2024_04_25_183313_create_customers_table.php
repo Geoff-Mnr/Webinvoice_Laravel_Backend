@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained();
             $table->string('company_name')->unique();
-            $table->string('email')->unique();
+            $table->string('email');
             $table->string('phone_number');
             $table->string('billing_address');
             $table->string('billing_city');

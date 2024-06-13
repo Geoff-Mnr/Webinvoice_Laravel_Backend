@@ -17,7 +17,7 @@ class LoginController extends BaseController
             if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
                 $user = Auth::user();
                 
-                if ($user->is_active == 0) {
+                if ($user->status == 'B') {
                     return $this->handleError('Your account is banned', 403);
                 }
 

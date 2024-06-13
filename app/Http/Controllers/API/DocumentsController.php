@@ -41,8 +41,8 @@ class DocumentsController extends BaseController
                             $query->where('name', 'like', "%$search%")
                                 ->orWhere('description', 'like', "%$search%");
                 });
-            });
-
+            })
+            ->orderBy('created_at', 'desc');
             $documents = $query->paginate($perPage)->withQueryString();
             return $this->handleResponse(DocumentResource::collection($documents),'Documents retrieved successfully', 200);
         } catch (\Exception $e) {

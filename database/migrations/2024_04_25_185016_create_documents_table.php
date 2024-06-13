@@ -13,13 +13,15 @@ return new class extends Migration
     {
         Schema::create('documents', function (Blueprint $table) {
             $table->id();
+            $table->foreignId('user_id')->constrained();
             $table->foreignId('customer_id')->constrained();
             $table->foreignId('documenttype_id')->constrained();
-            $table->string('reference_number')->unique();
+            $table->string('reference_number');
             $table->dateTime('document_date');
             $table->dateTime('due_date');
             $table->integer('price_htva');
             $table->integer('price_vvat');
+            $table->decimal('price_tvac');
             $table->integer('price_total');
             $table->string('status', 1)->default('N');
             $table->boolean('is_active')->default(true);
