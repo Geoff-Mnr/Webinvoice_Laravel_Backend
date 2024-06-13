@@ -23,6 +23,7 @@ Route ::middleware('auth:sanctum')->group(function () {
     Route::get('/list-customers', [\App\Http\Controllers\API\CustomersController::class, 'ListCustomers']);
     Route::get('/list-products', [\App\Http\Controllers\API\ProductsController::class, 'ListProducts']);
     Route::get('/profile-user', [\App\Http\Controllers\API\UsersController::class, 'getUserProfile']);
+    Route::get('/list-tickets-user', [\App\Http\Controllers\API\TicketsController::class, 'getTicketsByUser']);
     
 });
 

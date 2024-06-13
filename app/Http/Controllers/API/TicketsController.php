@@ -109,16 +109,12 @@ class TicketsController extends BaseController
         }
     }
 
-    public function getTicketsByUserAuth(Request $request)
+    public function getTicketsByUser(Request $request)
     {
         try {
-        $tickets = Ticket::where('user_id', auth()->user()->id);  
-        
-        if ($tickets->isEmpty()) {
-            return $this->handleError('No tickets found for this user', 404);
-        }
-
-        return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tickets retrieved successfully', 200);
+        $tickets = auth()->user()->tickets; 
+    
+        return $this->handleResponseNoPagination(TicketResource::collection($tickets->load('users')), 'Tickets retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
