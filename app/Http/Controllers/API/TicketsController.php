@@ -96,8 +96,6 @@ class TicketsController extends BaseController
         }
     }
 
-
-
     /**
      * Remove the specified resource from storage.
      */
@@ -106,6 +104,21 @@ class TicketsController extends BaseController
         try {
             $tickets->delete();
             return $this->handleResponseNoPagination(new TicketResource($tickets), 'Ticket deleted successfully', 200);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
+    }
+
+    public function getTicketsByUserAuth(Request $request)
+    {
+        try {
+        $tickets = Ticket::where('user_id', auth()->user()->id);  
+        
+        if ($tickets->isEmpty()) {
+            return $this->handleError('No tickets found for this user', 404);
+        }
+
+        return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tickets retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
