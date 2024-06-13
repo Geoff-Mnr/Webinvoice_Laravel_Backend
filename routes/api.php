@@ -17,6 +17,7 @@ Route ::middleware('auth:sanctum')->group(function () {
         'products' => \App\Http\Controllers\API\ProductsController::class,
         'documents' => \App\Http\Controllers\API\DocumentsController::class,
         'documenttypes' => \App\Http\Controllers\API\DocumentTypesController::class,
+        'tickets' => \App\Http\Controllers\API\TicketsController::class,
     ]);
     Route::get('/list-documenttypes', [\App\Http\Controllers\API\DocumentTypesController::class, 'ListDocumentTypes']);
     Route::get('/list-customers', [\App\Http\Controllers\API\CustomersController::class, 'ListCustomers']);
