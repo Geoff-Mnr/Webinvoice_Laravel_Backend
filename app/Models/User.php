@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Models\Role;
+use App\Models\Ticket;
 
 class User extends Authenticatable
 {
@@ -70,8 +71,8 @@ class User extends Authenticatable
     }
 
     public function tickets()
-    {
-        return $this->BelongsToMany(Tickets::class, 'ticket_user', 'user_id', 'ticket_id')
+{
+    return $this->belongsToMany(Ticket::class, 'ticket_user')
         ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
-    }
+}
 }

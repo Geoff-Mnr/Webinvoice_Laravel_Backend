@@ -4,10 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use App\Models\User;
 
 
-class Tickets extends Model
+class Ticket extends Model
 {
     use HasFactory;
 
@@ -22,9 +23,9 @@ class Tickets extends Model
     ];
 
     
-    public function user()
-    {
-        return $this->belongsToMany(User::class,'ticket_user', 'ticket_id', 'user_id')
+    public function users(): BelongsToMany
+{
+    return $this->belongsToMany(User::class, 'ticket_user')
         ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
-    }
+}
 }

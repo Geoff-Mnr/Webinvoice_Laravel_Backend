@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
-use App\Models\Tickets;
+use App\Models\Ticket;
 use App\Models\User;
 use App\Http\Resources\TicketResource;
 use Illuminate\Http\Request;
@@ -17,8 +17,8 @@ class TicketsController extends BaseController
      */
     public function index(Request $request)
     {
-        $tickets = Tickets::orderBy('created_at', 'desc')->get();
-        return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tickets retrieved successfully',200);
+        $ticket = Ticket::with('users')->get();
+        return $this->handleResponseNoPagination(TicketResource::collection($ticket), 'Tickets retrieved successfully',200);
     }
 
 
@@ -31,12 +31,23 @@ class TicketsController extends BaseController
         $request->validate([
             'title' => 'required',
             'description' => 'required',
-            'status' => 'required',
         ]);  
         $input = $request->all();
         $input['created_by'] = Auth::user()->id;
-        $ticket = Tickets::create($input);
-        return $this->handleResponseNoPagination(new TicketResource($ticket), 'Ticket created successfully', 200);
+        $input['status'] = $request->status ?? 'N';
+        $input['is_active'] = $request->is_active ?? '1';
+
+        $ticket = Ticket::create($input);
+
+        $ticket->users()->attach(auth()->user()->id, [
+            'message' => $request->message ?? 'No message',
+            'response' => $request->response ?? 'No response',
+            'status' => $request->status ?? 'N',
+            'created_by' => auth()->user()->id,
+            'updated_by' => auth()->user()->id
+        ]);
+        
+        return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Ticket created successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
@@ -47,22 +58,56 @@ class TicketsController extends BaseController
      */
     public function show(Tickets $tickets)
     {
-        //
+        $ticket = Ticket::with['user']->find($tickets->id);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Tickets $tickets)
+    public function update(Request $request, Ticket $ticket)
     {
-        //
+        try {
+            
+            // Mise à jour des champs du ticket
+            $input = $request->only(['title', 'description']);
+            $input['updated_by'] = Auth::user()->id;
+            
+            if (!empty($input['title']) || !empty($input['description'])) {
+                $ticket->update($input);
+            }
+
+            // Récupérer les valeurs actuelles de la table pivot pour l'utilisateur
+            $currentPivot = $ticket->users()->where('user_id', auth()->user()->id)->first()->pivot;
+
+            // Mise à jour des champs de la table pivot
+            $ticket->users()->updateExistingPivot(auth()->user()->id, [
+                'message' => $request->message ?? $currentPivot->message,
+                'response' => $request->response ?? $currentPivot->response,
+                'status' => $request->status ?? $currentPivot->status,
+                'updated_by' => auth()->user()->id
+            ]);
+
+            // Charger les utilisateurs associés au ticket avant de renvoyer la réponse
+            return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Ticket updated successfully', 200);
+        } catch (ValidationException $e) {
+            return $this->handleError($e->errors(), 422); // Unprocessable Entity for validation errors
+        } catch (\Exception $e) {
+            return $this->handleError('An error occurred while updating the ticket', 500); // Internal Server Error
+        }
     }
+
+
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Tickets $tickets)
+    public function destroy(Ticket $ticket)
     {
-        //
+        try {
+            $tickets->delete();
+            return $this->handleResponseNoPagination(new TicketResource($tickets), 'Ticket deleted successfully', 200);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
     }
 }

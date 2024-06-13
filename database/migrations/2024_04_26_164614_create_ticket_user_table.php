@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('ticket_user', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('ticket_id')->constrained('tickets');
-            $table->foreignId('user_id')->constrained('users');
-            $table->longText('message')->nullable(false);
-            $table->longText('response')->nullable(false);
+            $table->foreignId('ticket_id')->constrained();
+            $table->foreignId('user_id')->constrained();
+            $table->longText('message')->nullable();
+            $table->longText('response')->nullable();
             $table->string('status', 1)->default('N');
             $table->unsignedInteger('created_by')->nullable(false)->default(1);
             $table->unsignedInteger('updated_by')->nullable(true);
