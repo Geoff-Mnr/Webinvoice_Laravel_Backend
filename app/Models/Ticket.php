@@ -22,10 +22,10 @@ class Ticket extends Model
         'updated_by',
     ];
 
-    
+
     public function users(): BelongsToMany
-{
-    return $this->belongsToMany(User::class, 'ticket_user')
-        ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
-}
+    {
+        return $this->belongsToMany(User::class, 'ticket_user')
+            ->withPivot('message', 'response', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at');
+    }
 }

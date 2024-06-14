@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 namespace App\Http\Controllers;
 
@@ -15,19 +15,19 @@ class BaseController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
-    public function handleResponse($data, $message, $code=200)
+    public function handleResponse($data, $message, $code = 200)
     {
         return response()->json([
             'message' => $message,
             'data' => $data,
             'code' => $code,
             'meta' => [
-            'total' => $data->total(),
-            'per_page' => $data->perPage(),
-            'current_page' => $data->currentPage(),
-            'last_page' => $data->lastPage(),
-            'from' => $data->firstItem(),
-            'to' => $data->lastItem()
+                'total' => $data->total(),
+                'per_page' => $data->perPage(),
+                'current_page' => $data->currentPage(),
+                'last_page' => $data->lastPage(),
+                'from' => $data->firstItem(),
+                'to' => $data->lastItem()
             ],
             'links' => [
                 'prev' => $data->previousPageUrl(),
@@ -35,8 +35,8 @@ class BaseController extends Controller
                 'first' => $data->url(1),
                 'last' => $data->url($data->lastPage())
             ]
-            ], $code);
-     }
+        ], $code);
+    }
     /**
      * Handle the error response
      *
@@ -102,8 +102,3 @@ class BaseController extends Controller
         ], $code);
     }
 }
-
-
-
-
-

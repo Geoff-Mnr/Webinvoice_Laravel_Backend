@@ -65,14 +65,15 @@ class User extends Authenticatable
         ];
     }
 
-   public function role()
+    public function role()
     {
         return $this->belongsTo(Role::class);
     }
 
     public function tickets()
-{
-    return $this->belongsToMany(Ticket::class, 'ticket_user')
-        ->withPivot('message', 'response', 'status', 'created_by', 'updated_by');
-}
+    {
+        return $this->belongsToMany(Ticket::class, 'ticket_user')
+            ->withPivot('message', 'response', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at')
+            ->withTimestamps();
+    }
 }
