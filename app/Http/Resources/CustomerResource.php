@@ -32,7 +32,7 @@ class CustomerResource extends JsonResource
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
-            'updated_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
+            'updated_at' => Carbon::parse($this->updated_at)->format('d/m/Y H:i:s'),
         ];
     }
 }

@@ -19,7 +19,7 @@ class CustomersController extends BaseController
         $search = $request->q;
         $perPage = $request->input('per_page', 10);
         
-        try {
+       // try {
             $customers = Customer::where('user_id', auth()->user()->id)
                 ->when($search, function($query) use ($search) {
                     $query->where('company_name', 'like', "%$search%")
@@ -38,11 +38,10 @@ class CustomersController extends BaseController
 
             
             $customers = $customers->paginate($perPage)->withQueryString();
-            dd($customers);
             return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
-        } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(), 500);
-        }
+       // } catch (\Exception $e) {
+        //    return $this->handleError($e->getMessage(), 500);
+      //  }
     }
 
 
