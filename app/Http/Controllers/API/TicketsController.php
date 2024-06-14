@@ -28,29 +28,35 @@ class TicketsController extends BaseController
     public function store(Request $request)
     {
         try {
-        $request->validate([
-            'title' => 'required',
-        ]);  
-        $input = $request->all();
-        $input['created_by'] = Auth::user()->id;
-        $input['status'] = $request->status ?? 'N';
-        $input['is_active'] = $request->is_active ?? '1';
+            $request->validate([
+                'title' => 'required',
+            ]);
 
-        $ticket = Ticket::create($input);
+            $input = $request->all();
+            $input['created_by'] = Auth::user()->id;
+            $input['status'] = $request->status ?? 'N';
+            $input['is_active'] = $request->is_active ?? '1';
 
-        $ticket->users()->attach(auth()->user()->id, [
-            'message' => $request->message ?? 'No message',
-            'response' => $request->response ?? 'No response',
-            'status' => $request->status ?? 'N',
-            'created_by' => auth()->user()->id,
-            'updated_by' => auth()->user()->id
-        ]);
-        
-        return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Ticket created successfully', 200);
+            $ticket = Ticket::create($input);
+
+            // Attacher l'utilisateur authentifié au ticket dans la table pivot
+            $ticket->users()->attach(Auth::user()->id, [
+                'message' => 'Ticket créé',
+                'response' => '',
+                'status' => $input['status'],
+                'created_by' => Auth::user()->id,
+                'updated_by' => Auth::user()->id,
+            ]);
+
+            // Charger les relations après la création du ticket
+            $ticket->load('users');
+
+            return $this->handleResponseNoPagination(new TicketResource($ticket), 'Ticket created successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
     }
+
 
     /**
      * Display the specified resource.
@@ -138,38 +144,50 @@ class TicketsController extends BaseController
     public function getTicketsByUser(Request $request)
     {
         try {
-        $tickets = auth()->user()->tickets; 
-    
-        return $this->handleResponseNoPagination(TicketResource::collection($tickets->load('users')), 'Tickets retrieved successfully', 200);
+            $user = Auth::user();
+            $tickets = $user->tickets()->with('users')->get();
+
+            return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tickets retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
         }
     }
 
     public function addMessage(Request $request, Ticket $ticket)
-{
-    try {
-        // Valider les données entrantes
-        $request->validate([
-            'message' => 'required|string|max:500',
-        ]);
-
-        // Récupérer l'utilisateur authentifié
-        $user = Auth::user();
-
-        // Ajouter un message à la table pivot pour l'utilisateur authentifié
-        $ticket->users()->attach($user->id, [
-            'message' => $request->input('message'),
-            'response' => $request->input('response', 'No response'),
-            'status' => $request->input('status', 'N'),
-            'created_by' => $user->id,
-            'updated_by' => $user->id,
-        ]);
-
-        // Charger les utilisateurs associés au ticket avant de renvoyer la réponse
-        return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Message added to ticket successfully', 200);
-    } catch (\Exception $e) {
-        return $this->handleError('An error occurred while adding the message to the ticket', 500); // Internal Server Error
+    {
+        try {
+            $request->validate([
+                'message' => 'required|string|max:500',
+            ]);
+    
+            $user = Auth::user();
+    
+            // Vérifier si l'utilisateur est déjà associé au ticket
+            $currentPivot = $ticket->users()->where('user_id', $user->id)->first();
+    
+            if ($currentPivot) {
+                // Mise à jour de la table pivot si l'utilisateur est déjà associé
+                $ticket->users()->updateExistingPivot($user->id, [
+                    'message' => $request->input('message'),
+                    'response' => $request->input('response', 'No response'),
+                    'status' => $request->input('status', 'N'),
+                    'updated_by' => $user->id,
+                ]);
+            } else {
+                // Création de la table pivot si l'utilisateur n'est pas encore associé
+                $ticket->users()->attach($user->id, [
+                    'message' => $request->input('message'),
+                    'response' => $request->input('response', 'No response'),
+                    'status' => $request->input('status', 'N'),
+                    'created_by' => $user->id,
+                    'updated_by' => $user->id,
+                ]);
+            }
+    
+            return $this->handleResponseNoPagination(new TicketResource($ticket->load('users')), 'Message ajouté au ticket avec succès', 200);
+        } catch (\Exception $e) {
+            return $this->handleError('Une erreur s\'est produite lors de l\'ajout du message au ticket', 500);
+        }
     }
-}
+    
 }

@@ -38,6 +38,7 @@ class CustomersController extends BaseController
 
             
             $customers = $customers->paginate($perPage)->withQueryString();
+            dd($customers);
             return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
