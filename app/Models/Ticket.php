@@ -28,4 +28,9 @@ class Ticket extends Model
         return $this->belongsToMany(User::class, 'ticket_user')
             ->withPivot('message', 'response', 'status', 'created_by', 'updated_by', 'created_at', 'updated_at');
     }
+
+    public function createdBy()
+    {
+        return $this->belongsTo(User::class, 'created_by');
+    }
 }

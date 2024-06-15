@@ -28,6 +28,7 @@ class TicketResource extends JsonResource
             'updated_by' => $this->updated_by,
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
             'updated_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),
+            'createdBy' => new UserResource($this->whenLoaded('createdBy')),
             'users' => $this->whenLoaded('users', function () {
                 return $this->users->map(function ($user) {
                     return [
