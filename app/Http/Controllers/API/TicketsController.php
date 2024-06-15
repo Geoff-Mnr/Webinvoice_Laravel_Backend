@@ -86,7 +86,10 @@ class TicketsController extends BaseController
     public function update(Request $request, Ticket $ticket)
     {
         try {
-
+            // Vérifier si le ticket est actif avant de procéder à la mise à jour
+            if ($ticket->is_active != 1) {
+                return response()->json(['message' => 'La modification des tickets inactifs n\'est pas autorisée.'], 403);
+            }
 
             // Récupérer l'utilisateur authentifié
             $user = Auth::user();
