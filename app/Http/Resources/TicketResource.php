@@ -23,7 +23,7 @@ class TicketResource extends JsonResource
             'comment' => $this->comment,
             'description' => $this->description,
             'status' => $this->status,
-            'is_active' => $this->is_active,
+            'is_active' => $this->is_active == 1 ? 'Ouvert' : 'Fermé',
             'created_by' => $this->created_by,
             'updated_by' => $this->updated_by,
             'created_at' => Carbon::parse($this->created_at)->format('d/m/Y H:i:s'),

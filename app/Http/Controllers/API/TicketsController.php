@@ -45,7 +45,7 @@ class TicketsController extends BaseController
             $input = $request->all();
             $input['created_by'] = Auth::user()->id;
             $input['status'] = $request->status ?? 'N';
-            $input['is_active'] = $request->is_active ?? '1';
+            $input['is_active'] = $request->is_active === 'Ouvert' ? 1 : 0;
 
             $ticket = Ticket::create($input);
 
@@ -86,14 +86,7 @@ class TicketsController extends BaseController
     public function update(Request $request, Ticket $ticket)
     {
         try {
-            // Valider les données entrantes
-            $request->validate([
-                'title' => 'sometimes|string|max:255',
-                'description' => 'sometimes|string',
-                'message' => 'nullable|string|max:500',
-                'response' => 'nullable|string|max:500',
-                'status' => 'nullable|string|in:N,O,C', // Assuming N, O, C are valid status codes
-            ]);
+
 
             // Récupérer l'utilisateur authentifié
             $user = Auth::user();
@@ -101,6 +94,7 @@ class TicketsController extends BaseController
             // Mise à jour des champs du ticket
             $input = $request->only(['title', 'description']);
             $input['updated_by'] = $user->id;
+            $input['is_active'] = $request->is_active === 'Ouvert' ? 1 : 0;
 
             if (!empty($input['title']) || !empty($input['description'])) {
                 $ticket->update($input);
