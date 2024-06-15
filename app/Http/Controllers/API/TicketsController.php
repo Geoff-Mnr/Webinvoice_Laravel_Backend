@@ -18,9 +18,17 @@ class TicketsController extends BaseController
      */
     public function index(Request $request)
     {
-        $tickets = Ticket::with(['users', 'createdBy'])->orderBy('created_at', 'desc')->get();
+        try {
+            $tickets = Ticket::with(['users' => function ($query) {
+                $query->orderBy('ticket_user.created_at', 'asc');
+            }, 'createdBy'])
+                ->orderBy('created_at', 'desc')
+                ->get();
 
-        return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tickets retrieved successfully', 200);
+            return $this->handleResponseNoPagination(TicketResource::collection($tickets), 'Tous les tickets ont été récupérés avec succès.', 200);
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 400);
+        }
     }
 
 
