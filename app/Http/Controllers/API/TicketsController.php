@@ -44,8 +44,7 @@ class TicketsController extends BaseController
 
             $input = $request->all();
             $input['created_by'] = Auth::user()->id;
-            $input['status'] = $request->status ?? 'N';
-            $input['is_active'] = $request->is_active === 'Ouvert' ? 1 : 0;
+            $input['status'] = 'Ouvert' ? 'N' : 'C';
 
             $ticket = Ticket::create($input);
 
@@ -86,9 +85,9 @@ class TicketsController extends BaseController
     public function update(Request $request, Ticket $ticket)
     {
         try {
-            // Vérifier si le ticket est actif avant de procéder à la mise à jour
-            if ($ticket->is_active != 1) {
-                return response()->json(['message' => 'La modification des tickets inactifs n\'est pas autorisée.'], 403);
+
+            if ($ticket->status === 'C') {
+                return $this->handleError('Ticket is closed', 400);
             }
 
             // Récupérer l'utilisateur authentifié
@@ -97,7 +96,7 @@ class TicketsController extends BaseController
             // Mise à jour des champs du ticket
             $input = $request->only(['title', 'description']);
             $input['updated_by'] = $user->id;
-            $input['is_active'] = $request->is_active === 'Ouvert' ? 1 : 0;
+            $input['status'] = $request->input('status') === 'Ouvert' ? 'N' : 'C';
 
             if (!empty($input['title']) || !empty($input['description'])) {
                 $ticket->update($input);

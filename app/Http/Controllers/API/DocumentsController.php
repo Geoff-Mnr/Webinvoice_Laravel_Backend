@@ -28,8 +28,8 @@ class DocumentsController extends BaseController
 
         try {
             $query = Document::where('user_id', auth()->user()->id)
-                ->with ([ 'customer', 'documenttype', 'products' ])
-                ->where(function($query) use ($search) {
+                ->with(['customer', 'documenttype', 'products'])
+                ->where(function ($query) use ($search) {
                     $query->where('reference_number', 'like', "%$search%")
                         ->orWhere('document_date', 'like', "%$search%")
                         ->orWhere('due_date', 'like', "%$search%")
@@ -37,19 +37,19 @@ class DocumentsController extends BaseController
                         ->orWhere('price_vvat', 'like', "%$search%")
                         ->orWhere('price_total', 'like', "%$search%")
                         ->orWhere('status', 'like', "%$search%")
-                        ->orWhereHas('documenttype', function($query) use ($search) {
+                        ->orWhereHas('documenttype', function ($query) use ($search) {
                             $query->where('name', 'like', "%$search%")
                                 ->orWhere('description', 'like', "%$search%");
-                });
-            })
-            ->orderBy('created_at', 'desc');
+                        });
+                })
+                ->orderBy('created_at', 'desc');
             $documents = $query->paginate($perPage)->withQueryString();
-            return $this->handleResponse(DocumentResource::collection($documents),'Documents retrieved successfully', 200);
+            return $this->handleResponse(DocumentResource::collection($documents), 'Documents retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }
     }
-            
+
 
     /**
      * Store a newly created resource in storage.
@@ -83,13 +83,13 @@ class DocumentsController extends BaseController
             $request['reference_number'] = $this->generateReferenceNumber($request['documenttype_id']);
             $request['created_by'] = auth()->user()->id;
             $documentData = $request->except('selectedProducts');
-            
+
             // Création du document
             $document = Document::create($documentData);
 
             $notFoundProducts = [];
             foreach ($request->selectedProducts as $selectedProduct) {
-                $product = Product::find($selectedProduct['product_id']); 
+                $product = Product::find($selectedProduct['product_id']);
                 Log::info("Product ID: {$selectedProduct['product_id']}");
                 if ($product && $product->id) {
                     $document->products()->attach($product->id, [
@@ -117,7 +117,7 @@ class DocumentsController extends BaseController
             if (!empty($notFoundProducts)) {
                 return $this->handleError('The following products were not found: ' . implode(', ', $notFoundProducts), 400);
             }
-            
+
             return $this->handleResponseNoPagination('Document created successfully', $document, 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
@@ -130,10 +130,10 @@ class DocumentsController extends BaseController
     public function show(Document $document)
     {
         try {
-            $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();   
+            $document = Document::where('user_id', auth()->user()->id)->where('id', $document->id)->with('products')->first();
             return $this->handleResponseNoPagination(200, 'Document retrieved successfully', $document, 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -166,7 +166,7 @@ class DocumentsController extends BaseController
 
             // Récupération du document
             $document = Document::findOrFail($documentId);
-            
+
             // Mise à jour des informations du document
             $document->update($request->except('selectedProducts'));
 
@@ -184,7 +184,7 @@ class DocumentsController extends BaseController
                     'description' => $selectedProduct['description'] ?? null,
                     'status' => $selectedProduct['status'] ?? 'N',
                     'is_active' => $selectedProduct['is_active'] ?? true,
-                    'created_by' => $product->pivot->created_by ?? auth()->user()->id,
+                    'created_by' => $selectedProduct->pivot->created_by ?? auth()->user()->id,
                     'updated_by' => auth()->user()->id,
                     'created_at' => now(),
                     'updated_at' => now(),
@@ -200,7 +200,7 @@ class DocumentsController extends BaseController
         }
     }
 
-    
+
 
     /**
      * Remove the specified resource from storage.
@@ -211,21 +211,22 @@ class DocumentsController extends BaseController
             $document->delete();
             return $this->handleResponse('Document deleted successfully', null, 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
-        }   
+            return $this->handleError($e->getMessage(), 400);
+        }
     }
 
 
     /**
      * Generate a reference number for a document
      */
-    
-    private function generateReferenceNumber($documenttype_id){
+
+    private function generateReferenceNumber($documenttype_id)
+    {
         $prefix = $documenttype_id == 1 ? 'FACT-' : 'DOCU-';
-     $lastDocument = Document::where('reference_number', 'like', $prefix . '%')
-                        ->where('user_id', auth()->user()->id)
-                        ->orderBy('reference_number', 'desc')
-                        ->first();
+        $lastDocument = Document::where('reference_number', 'like', $prefix . '%')
+            ->where('user_id', auth()->user()->id)
+            ->orderBy('reference_number', 'desc')
+            ->first();
         if ($lastDocument) {
             $lastNumber = intval(str_replace($prefix, '', $lastDocument->reference_number));
         } else {
