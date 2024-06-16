@@ -36,6 +36,7 @@ class TicketResource extends JsonResource
                         'username' => $user->username,
                         'email' => $user->email,
                         'profile_picture' => $user->profile_picture,
+                        'role_name' => $user->role->name,
                         'pivot' => [
                             'message' => $user->pivot->message,
                             'response' => $user->pivot->response,

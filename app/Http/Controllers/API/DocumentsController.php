@@ -21,9 +21,9 @@ class DocumentsController extends BaseController
     public function index(Request $request)
     {
         $search = $request->q;
-        $customer_id = $request->customer_id;
-        $documenttype_id = $request->documenttype_id;
-        $product_id = $request->product_id;
+        $request->customer_id;
+        $request->documenttype_id;
+        $request->product_id;
         $perPage = $request->input('per_page', 10);
 
         try {
@@ -233,5 +233,14 @@ class DocumentsController extends BaseController
             $lastNumber = 0;
         }
         return $prefix . str_pad($lastNumber + 1, 4, '0', STR_PAD_LEFT);
+    }
+
+    public function getDocumentsByUser()
+    {
+        $documents = Document::where('user_id', auth()->user()->id)
+            ->orderBy('created_at', 'desc')
+            ->take(3)
+            ->get();
+        return $this->handleResponseNoPagination(DocumentResource::collection($documents), 'Documents retrieved successfully', 200);
     }
 }

@@ -9,7 +9,7 @@ Route::post('/login', [\App\Http\Controllers\Auth\LoginController::class, 'login
 Route::post('/register', [\App\Http\Controllers\Auth\RegisterController::class, 'register']);
 Route::get('/invoices/{documentId}', [\App\Http\Controllers\InvoiceController::class, 'generateInvoice']);
 
-Route ::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
     Route::apiResources([
         'roles' => \App\Http\Controllers\API\RolesController::class,
         'users' => \App\Http\Controllers\API\UsersController::class,
@@ -24,13 +24,10 @@ Route ::middleware('auth:sanctum')->group(function () {
     Route::get('/list-products', [\App\Http\Controllers\API\ProductsController::class, 'ListProducts']);
     Route::get('/profile-user', [\App\Http\Controllers\API\UsersController::class, 'getUserProfile']);
     Route::get('/list-tickets-user', [\App\Http\Controllers\API\TicketsController::class, 'getTicketsByUser']);
+    Route::get('/documents-by-customer', [\App\Http\Controllers\API\DocumentsController::class, 'getDocumentsByUser']);
     Route::post('/tickets/{ticket}/messages', [\App\Http\Controllers\API\TicketsController::class, 'addMessage']);
 });
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
-
-
-
