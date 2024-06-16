@@ -16,11 +16,11 @@ class DocumentTypesController extends BaseController
     {
         $search = $request->q;
         $perPage = $request->input('per_page', 10);
-
+        // Afficher les types de documents de l'utilisateur connecté par page
         try {
             $documenttypes = Documenttype::where('name', 'LIKE', "%$search%");
             $documenttypes = $documenttypes->paginate($perPage)->withQueryString();
-            return $this->handleResponse(DocumentTypeResource::collection($documenttypes),'Document types retrieved successfully', 200);
+            return $this->handleResponse(DocumentTypeResource::collection($documenttypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);
         }
@@ -31,17 +31,23 @@ class DocumentTypesController extends BaseController
      */
     public function store(Request $request)
     {
+        // Valider les données de la requête
         try {
             $request->validate([
                 'name' => 'required',
             ]);
+            // Ajouter l'ID de l'utilisateur connecté
             $request['user_id'] = auth()->user()->id;
+            // Générer une référence pour le type de document
             $request['reference'] = $this->generateReference();
+            // Vérifier si le statut est actif ou inactif
             $request['is_active'] = $request['status'] === 'Actif' ? 'A' : 'I';
+
+            // Créer un nouveau type de document
             $documenttype = Documenttype::create($request->all());
             return $this->handleResponseNoPagination('Document type created successfully', $documenttype);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -54,8 +60,8 @@ class DocumentTypesController extends BaseController
             $documenttype = Documenttype::where('user_id', auth()->user()->id)->where('id', $id)->first();
             return $this->handleResponse('Document type fetched successfully', $documenttype);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
-        }   
+            return $this->handleError($e->getMessage(), 400);
+        }
     }
 
     /**
@@ -64,11 +70,16 @@ class DocumentTypesController extends BaseController
     public function update(Request $request, Documenttype $documenttype)
     {
         try {
+            $request->validate([
+                'name' => 'required',
+            ]);
+            // Vérifier si le statut est actif ou inactif
             $request['is_active'] = $request['status'] === 'Actif' ? 'A' : 'I';
+            // Mettre à jour le type de document
             $documenttype->update($request->all());
             return $this->handleResponseNoPagination('Document type updated successfully', $documenttype);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -78,10 +89,11 @@ class DocumentTypesController extends BaseController
     public function destroy(Documenttype $documenttype)
     {
         try {
-            $documenttype->update(['is_active' => 0]);
-            return $this->handleResponse(200, 'Document type deleted successfully', $documenttype);
+            // Supprimer le type de document
+            $documenttype->delete();
+            return $this->handleResponseNoPagination('Document type deleted successfully', $documenttype);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -92,10 +104,11 @@ class DocumentTypesController extends BaseController
     public function ListDocumentTypes()
     {
         try {
+            // Récupérer tous les types de documents actifs
             $documentTypes = Documenttype::where('is_active', 'A')->get();
             return $this->handleResponseNoPagination(DocumentTypeResource::collection($documentTypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -104,8 +117,11 @@ class DocumentTypesController extends BaseController
      */
     public function generateReference()
     {
+        // Récupérer le dernier type de document
         $lastDocumentType = Documenttype::latest()->first();
+        // Récupérer l'ID du dernier type de document
         $lastDocumentTypeId = $lastDocumentType ? $lastDocumentType->id : 0;
+        // Générer une référence pour le type de document
         return 'TDOC-' . str_pad($lastDocumentTypeId + 1, 2, '0', STR_PAD_LEFT);
     }
 }

@@ -4,10 +4,8 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\BaseController;
 use App\Models\Ticket;
-use App\Models\User;
 use App\Http\Resources\TicketResource;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
 
@@ -42,8 +40,10 @@ class TicketsController extends BaseController
                 'title' => 'required',
             ]);
 
+            // Récupérer les données de la requête
             $input = $request->all();
             $input['created_by'] = Auth::user()->id;
+            // gere le status du ticket
             $input['status'] = 'Ouvert' ? 'N' : 'C';
 
             $ticket = Ticket::create($input);
@@ -60,7 +60,6 @@ class TicketsController extends BaseController
             ]);
             // Charger les relations après la création du ticket
             $ticket->load('users');
-
             return $this->handleResponseNoPagination(new TicketResource($ticket), 'Ticket created successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 400);
@@ -85,7 +84,10 @@ class TicketsController extends BaseController
     public function update(Request $request, Ticket $ticket)
     {
         try {
-
+            $request->validate([
+                'title' => 'string|max:255',
+                'message' => 'string|max:500',
+            ]);
             if ($ticket->status === 'C') {
                 return $this->handleError('Ticket is closed', 400);
             }
@@ -150,10 +152,14 @@ class TicketsController extends BaseController
         }
     }
 
+    /**
+     * Get tickets by user
+     */
     public function getTicketsByUser(Request $request)
     {
         try {
             $user = Auth::user();
+            // Récupérer les tickets créés par l'utilisateur authentifié
             $tickets = Ticket::where("created_by", $user->id)
                 ->with(['users' => function ($query) {
                     $query->orderBy('ticket_user.created_at', 'asc');
@@ -166,6 +172,10 @@ class TicketsController extends BaseController
             return $this->handleError($e->getMessage(), 400);
         }
     }
+
+    /**
+     * Add a message to a ticket
+     */
 
     public function addMessage(Request $request, Ticket $ticket)
     {
@@ -195,6 +205,32 @@ class TicketsController extends BaseController
             return $this->handleResponseNoPagination(new TicketResource($ticket), 'Message ajouté au ticket avec succès', 200);
         } catch (\Exception $e) {
             return $this->handleError('Une erreur s\'est produite lors de l\'ajout du message au ticket', 500);
+        }
+    }
+
+    /**
+     * Get last ticket by user
+     */
+    public function getLastTicketByUser(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            // Si l'utilisateur n'est pas authentifié
+            if (!$user) {
+                return $this->handleError('User not authenticated', 401);
+            }
+            // Récupérer le dernier ticket créé par l'utilisateur authentifié
+            $ticket = Ticket::where('created_by', $user->id)
+                ->orderBy('created_at', 'desc')
+                ->first();
+
+            if (!$ticket) {
+                return $this->handleError('No ticket found', 404);
+            }
+
+            return $this->handleResponseNoPagination(new TicketResource($ticket), 'Ticket retrieved successfully', 200);
+        } catch (\Exception $e) {
+            return $this->handleError('An error occurred while retrieving the ticket: ' . $e->getMessage(), 400);
         }
     }
 }

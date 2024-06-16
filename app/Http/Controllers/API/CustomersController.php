@@ -4,24 +4,22 @@ namespace App\Http\Controllers\API;
 
 
 use App\Models\Customer;
-use App\Models\Product;
-use App\Models\User;
 use Illuminate\Http\Request;
 use App\Http\Controllers\BaseController;
 use App\Http\Resources\CustomerResource;
 
 class CustomersController extends BaseController
 {
-    
+
 
     public function index(Request $request)
     {
         $search = $request->q;
         $perPage = $request->input('per_page', 10);
-        
-       // try {
+
+        try {
             $customers = Customer::where('user_id', auth()->user()->id)
-                ->when($search, function($query) use ($search) {
+                ->when($search, function ($query) use ($search) {
                     $query->where('company_name', 'like', "%$search%")
                         ->orWhere('email', 'like', "%$search%")
                         ->orWhere('phone_number', 'like', "%$search%")
@@ -35,13 +33,11 @@ class CustomersController extends BaseController
                         ->orWhere('status', 'like', "%$search%")
                         ->orWhere('is_active', 'like', "%$search%");
                 });
-
-            
             $customers = $customers->paginate($perPage)->withQueryString();
             return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
-       // } catch (\Exception $e) {
-        //    return $this->handleError($e->getMessage(), 500);
-      //  }
+        } catch (\Exception $e) {
+            return $this->handleError($e->getMessage(), 500);
+        }
     }
 
 
@@ -60,7 +56,7 @@ class CustomersController extends BaseController
             $customer = Customer::create($request->all());
             return $this->handleResponseNoPagination('Customer created successfully', $customer);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -96,7 +92,7 @@ class CustomersController extends BaseController
                 return $this->handleError('Customer not found', 400);
             }
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -110,7 +106,7 @@ class CustomersController extends BaseController
             $customer->update($request->all());
             return $this->handleResponseNoPagination('Customer updated successfully', $customer, 200);
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
@@ -125,12 +121,15 @@ class CustomersController extends BaseController
                 return $this->handleResponse(200, 'Customer deleted successfully', $customer);
             } else {
                 return $this->handleError('Customer not found', 400);
-            } 
+            }
         } catch (\Exception $e) {
-            return $this->handleError($e->getMessage(),400);
+            return $this->handleError($e->getMessage(), 400);
         }
     }
 
+    /**
+     * List all customers
+     */
     public function ListCustomers()
     {
         try {

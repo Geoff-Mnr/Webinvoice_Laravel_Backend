@@ -25,6 +25,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/profile-user', [\App\Http\Controllers\API\UsersController::class, 'getUserProfile']);
     Route::get('/list-tickets-user', [\App\Http\Controllers\API\TicketsController::class, 'getTicketsByUser']);
     Route::get('/documents-by-customer', [\App\Http\Controllers\API\DocumentsController::class, 'getDocumentsByUser']);
+    Route::get('/tickets-by-user', [\App\Http\Controllers\API\TicketsController::class, 'getLastTicketByUser']);
+    Route::get('/stats', [\App\Http\Controllers\API\DocumentsController::class, 'getUserStats']);
     Route::post('/tickets/{ticket}/messages', [\App\Http\Controllers\API\TicketsController::class, 'addMessage']);
 });
 

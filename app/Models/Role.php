@@ -22,14 +22,8 @@ class Role extends Model
         'updated_by',
     ];
 
-    protected $casts = [
-        'created_by' => CreatedByCast::class,
-        'updated_by' => UpdatedByCast::class,
-    ];
-
     public function users()
     {
         return $this->hasMany(User::class, 'role_id');
     }
-
 }

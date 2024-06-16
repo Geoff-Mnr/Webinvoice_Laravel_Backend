@@ -15,16 +15,14 @@ class InvoiceController extends Controller
     {
         $document = Document::with(['customer', 'products', 'documenttype', 'user'])->findOrFail($documentId);
         $data = [
-        'document' => $document,
-        'user' => $document->user,
-        'customer' => $document->customer,
-        'products' => $document->products,
-        'documenttype' => $document->documenttype,
-        'reference_number' => $document->reference_number,
-        'name' => $document->customer->company_name, 
-    ];
+            'document' => $document,
+            'user' => $document->user,
+            'customer' => $document->customer,
+            'products' => $document->products,
+            'documenttype' => $document->documenttype,
+        ];
 
-    $pdf = PDF::loadView('invoice', $data);
-    return $pdf->download('invoice.pdf');
+        $pdf = PDF::loadView('invoice', $data);
+        return $pdf->download('invoice.pdf');
     }
 }
