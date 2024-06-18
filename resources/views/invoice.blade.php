@@ -683,7 +683,7 @@ img{
             <tr>
               <td class="w-full align-top">
                 <div>
-                <img src="data:image/png;base64,{{ base64_encode(file_get_contents(public_path('storage/img/wi_logo_light.png'))) }}" alt="logo"/>
+                <img src="data:image/png;base64,{{ base64_encode(file_get_contents('https://api.web-invoice.be/wi_logo_light.png')) }}" alt="logo"/>
                 </div>
               </td>
 
