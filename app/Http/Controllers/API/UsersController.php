@@ -42,12 +42,11 @@ class UsersController extends BaseController
                                     ->orWhere('description', 'like', "%$search%");
                             });
                     }
-                });
-
+                })
+            ->orderBy('created_at', 'desc');
             if (!is_null($role_id)) {
                 $query->where('role_id', $role_id);
             }
-
             $users = $query->paginate($perPage)->appends(request()->query());
 
             return $this->handleResponse(UserResource::collection($users), 'Users retrieved successfully', 200);
@@ -120,6 +119,7 @@ class UsersController extends BaseController
                     $fileName = time() . '.' . $file->getClientOriginalExtension();
                     $file->move(public_path('images/profile_pictures/'), $fileName);
                     $input['profile_picture'] = $fileName;
+
                 }
                 $user->update($input);
                 return $this->handleResponseNoPagination('User updated successfully', $user, 200);

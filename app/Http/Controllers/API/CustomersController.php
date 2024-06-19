@@ -32,8 +32,10 @@ class CustomersController extends BaseController
                         ->orWhere('vat_number', 'like', "%$search%")
                         ->orWhere('status', 'like', "%$search%")
                         ->orWhere('is_active', 'like', "%$search%");
-                });
+                })
+                ->orderBy('created_at', 'desc');
             $customers = $customers->paginate($perPage)->withQueryString();
+
             return $this->handleResponse(CustomerResource::collection($customers), 'Customers retrieved successfully', 200);
         } catch (\Exception $e) {
             return $this->handleError($e->getMessage(), 500);

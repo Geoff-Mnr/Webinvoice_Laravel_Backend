@@ -18,7 +18,8 @@ class DocumentTypesController extends BaseController
         $perPage = $request->input('per_page', 10);
         // Afficher les types de documents de l'utilisateur connecté par page
         try {
-            $documenttypes = Documenttype::where('name', 'LIKE', "%$search%");
+            $documenttypes = Documenttype::where('name', 'LIKE', "%$search%")
+            ->orderBy('created_at', 'desc');
             $documenttypes = $documenttypes->paginate($perPage)->withQueryString();
             return $this->handleResponse(DocumentTypeResource::collection($documenttypes), 'Document types retrieved successfully', 200);
         } catch (\Exception $e) {

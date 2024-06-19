@@ -24,8 +24,9 @@ class ProductsController extends BaseController
                     $query->where('name', 'like', "%$search%")
                         ->orWhere('brand', 'like', "%$search%")
                         ->orWhere('ean_code', 'like', "%$search%");
-                });
+                })
 
+                ->orderBy('created_at', 'desc');
             $products = $query->paginate($perPage)->withQueryString();
             return $this->handleResponse(ProductResource::collection($products), 'Products retrieved successfully', 200);
         } catch (\Exception $e) {
